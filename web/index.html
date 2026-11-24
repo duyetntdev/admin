@@ -55,6 +55,14 @@ a.lnk{color:inherit;text-decoration:none;border-bottom:1px dashed var(--muted);c
 .empty{color:var(--muted);text-align:center;padding:24px}
 .grid2{display:grid;grid-template-columns:1fr;gap:18px}
 .err{background:#fde8ea;color:#8a1c2b;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:none}
+.pinbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pinbar input{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px;flex:1;min-width:180px;max-width:320px}
+button.reset{font:inherit;font-size:12.5px;cursor:pointer;border:1px solid var(--nihongo);color:var(--nihongo);background:transparent;border-radius:8px;padding:3px 10px}
+button.reset:hover{background:var(--nihongo);color:#fff}
+button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var(--nihongo)}
+.ok{background:#e3f6e8;color:#14532d;border-radius:8px;padding:10px 12px;margin-bottom:10px;display:none}
+.pinlist{max-height:360px;overflow-y:auto}
+@media (prefers-color-scheme: dark){ .ok{background:#163222;color:#a7e3b8} .err{background:#3a1820;color:#f5b3bd} }
 @media (max-width:600px){ header{padding:14px 16px} .card .v{font-size:22px} }
 </style>
 </head>
@@ -95,6 +103,20 @@ a.lnk{color:inherit;text-decoration:none;border-bottom:1px dashed var(--muted);c
     <div class="tw"><table>
       <thead><tr><th>Username</th><th>Site</th><th>Số lượt</th><th>Lần đầu (trong khoảng)</th><th>Lần gần nhất</th></tr></thead>
       <tbody id="users"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Reset mã PIN · en.duyetnt.com <small id="pinNote"></small></h2>
+    <div class="pinbar">
+      <input type="search" id="pinq" placeholder="Tìm tên bé…" aria-label="Tìm tên bé">
+      <button class="reset" id="pinreload" style="border-color:var(--line);color:var(--text)">↻</button>
+    </div>
+    <div class="ok" id="pinok"></div>
+    <div class="err" id="pinerr"></div>
+    <div class="tw pinlist"><table>
+      <thead><tr><th>Tên</th><th>Mã PIN</th><th>Số cấp đã qua</th><th>Cập nhật</th><th></th></tr></thead>
+      <tbody id="pinusers"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody>
     </table></div>
   </section>
 
@@ -212,6 +234,45 @@ $('site').onchange = load;
 let deb; $('user').oninput = () => { clearTimeout(deb); deb = setTimeout(load, 300); };
 $('reload').onclick = load;
 document.addEventListener('click', e => { const a = e.target.closest('[data-user]'); if(a){ $('user').value = a.dataset.user; load(); window.scrollTo({top:0, behavior:'smooth'}); } });
+// ---------- reset mã PIN (en.duyetnt.com) ----------
+let enUsers = [];
+async function loadPins(){
+  try{
+    const r = await fetch('api/en/users', {cache:'no-store'});
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || 'mã ' + r.status);
+    enUsers = d.users; renderPins(); $('pinerr').style.display = 'none';
+  }catch(e){ $('pinerr').textContent = 'Không tải được danh sách hồ sơ: ' + e.message; $('pinerr').style.display = 'block'; }
+}
+function renderPins(){
+  const q = $('pinq').value.trim().toLowerCase();
+  const list = enUsers.filter(u => u.name.toLowerCase().includes(q));
+  $('pinNote').textContent = `${enUsers.length} hồ sơ`;
+  $('pinusers').innerHTML = list.length ? list.map(u => `<tr>
+      <td class="u">${esc(u.name)}</td>
+      <td>${u.locked ? '<span class="chip" style="color:var(--nihongo)">Đang khoá (sai PIN)</span>' : u.hasPin ? '<span class="chip">Có PIN</span>' : '<span class="muted">Chưa có – bé sẽ tự đặt</span>'}</td>
+      <td>${u.levels}</td><td>${fmtDT.format(new Date(u.updated*1000))}</td>
+      <td>${u.hasPin || u.locked ? `<button class="reset" data-reset="${esc(u.name)}">Reset PIN</button>` : ''}</td></tr>`).join('')
+    : `<tr><td colspan="5" class="empty">${enUsers.length ? 'Không có tên nào khớp' : 'Chưa có hồ sơ nào'}</td></tr>`;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-reset]'); if(!b) return;
+  const name = b.dataset.reset;
+  if(!confirm(`Reset mã PIN của "${name}"?\n\nBé sẽ bị đăng xuất trên mọi thiết bị. Lần vào sau, bé nhập tên rồi tự đặt PIN mới. Tiến độ học giữ nguyên.`)) return;
+  b.disabled = true; $('pinok').style.display = $('pinerr').style.display = 'none';
+  try{
+    const r = await fetch('api/en/reset-pin', {method:'POST', headers:{'Content-Type':'application/json', 'X-Admin':'1'}, body:JSON.stringify({name})});
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || 'mã ' + r.status);
+    $('pinok').textContent = `✓ Đã reset mã PIN của "${d.name}". Lần sau vào en.duyetnt.com, bé nhập tên "${d.name}" rồi đặt PIN mới.`;
+    $('pinok').style.display = 'block';
+    loadPins();
+  }catch(err){ b.disabled = false; $('pinerr').textContent = 'Reset không thành công: ' + err.message; $('pinerr').style.display = 'block'; }
+});
+$('pinq').oninput = renderPins;
+$('pinreload').onclick = loadPins;
+loadPins();
+
 setRange(6); load();
 setInterval(() => { if(!document.hidden) load(); }, 60e3);
 </script>

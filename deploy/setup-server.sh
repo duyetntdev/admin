@@ -33,6 +33,21 @@ if [ ! -f $SITE ]; then
   echo "   Xin chứng chỉ HTTPS ..."
   certbot --nginx -d $DOMAIN --non-interactive --redirect --keep-until-expiring
 fi
+# Site đã có từ trước (certbot đã sửa file): thêm location POST reset PIN nếu chưa có
+if ! grep -q 'location = /api/en/reset-pin' $SITE; then
+  cp $SITE $SITE.bak-before-reset-pin
+  python3 - $SITE $T/nginx-admin.conf <<'PY'
+import re, sys
+site, tpl = sys.argv[1], open(sys.argv[2]).read()
+block = re.search(r'\n    # Chỉ đường dẫn này được POST.*?\n    }\n', tpl, re.S).group(0)
+s = open(site).read()
+anchor = '        limit_except GET { deny all; }\n    }\n'
+assert anchor in s, 'không thấy location / trong ' + site
+open(site, 'w').write(s.replace(anchor, anchor + block))
+PY
+  nginx -t || { cp $SITE.bak-before-reset-pin $SITE; echo "!! nginx lỗi, đã trả lại cấu hình cũ"; exit 1; }
+  echo "   Đã thêm /api/en/reset-pin vào nginx"
+fi
 nginx -t 2>/dev/null && systemctl reload nginx
 
 # 4. nhập dữ liệu cũ (lần đầu): các lần đăng nhập / đăng ký đã có trong 2 site

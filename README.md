@@ -3,7 +3,7 @@
 Tổng hợp lượt truy cập của en.duyetnt.com và nihongo.duyetnt.com (username, ngày, giờ, thời lượng, thiết bị, IP).
 
 - `server/admin.py`: dịch vụ Python (chỉ dùng thư viện chuẩn, SQLite). Cổng 8095 phục vụ giao diện web và API đọc, cổng 8096 nhận sự kiện từ 2 API học. Cả hai cổng chỉ nghe trên 127.0.0.1, và cổng 8096 không bao giờ được đưa ra nginx.
-- `web/index.html`: giao diện.
+- `web/index.html`: giao diện, gồm cả mục **Reset mã PIN** cho hồ sơ en.duyetnt.com (gọi cổng quản trị nội bộ 127.0.0.1:8091 của en-learn; cổng này cũng không bao giờ được đưa ra nginx).
 - `homepage/index.html`: trang chủ tĩnh của duyetnt.com, giới thiệu en.duyetnt.com và nihongo.duyetnt.com (một file HTML, không cần build).
 - `deploy/`: systemd unit, site nginx (basic auth), `setup-server.sh`, `backfill.py` (nhập dữ liệu cũ một lần).
 - 2 API học (`en-learn/server/app.py`, `nihongo-it/server/progress-api.mjs`) gửi sự kiện khi mở trang, đăng nhập, đăng ký hoặc lưu bài. Các sự kiện cách nhau dưới 30 phút được gộp thành 1 lượt.

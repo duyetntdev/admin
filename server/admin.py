@@ -13,11 +13,15 @@ API đọc:
   GET /api/visits?from=YYYY-MM-DD&to=YYYY-MM-DD&site=&user=   (ngày theo giờ Việt Nam)
       → {visits: [{id, site, user, kind, start, last, hits, ip, ua}], truncated}
 
+Quản lý hồ sơ en.duyetnt.com (chuyển tiếp tới cổng quản trị nội bộ của en-learn, mặc định 127.0.0.1:8091):
+  GET  /api/en/users                       → {users: [{name, hasPin, locked, levels, updated}]}
+  POST /api/en/reset-pin {name}            → {ok, name}   (bắt buộc header X-Admin: 1 để chặn CSRF)
+
 Chạy thử trên máy:
   python3 server/admin.py --db /tmp/admin.db --static web
   # mở http://127.0.0.1:8095, gửi thử: curl -d '{"site":"en","user":"bong","kind":"open"}' 127.0.0.1:8096/ingest
 """
-import argparse, datetime, json, os, re, sqlite3, threading, time
+import argparse, datetime, json, os, re, sqlite3, threading, time, urllib.error, urllib.request
 from http import HTTPStatus
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -29,6 +33,7 @@ DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 GAP = 30 * 60                       # khoảng nghỉ tối đa trong cùng một lượt truy cập (giây)
 MAX_ROWS = 5000
 VN = datetime.timezone(datetime.timedelta(hours=7))
+EN_ADMIN = 'http://127.0.0.1:8091'          # cổng quản trị nội bộ của en-learn (đổi bằng --en-admin)
 
 db_lock = threading.Lock()
 db = None
@@ -119,9 +124,44 @@ class Web(Base):
         u = urlparse(self.path)
         if u.path == '/api/visits':
             return self.visits(parse_qs(u.query))
+        if u.path == '/api/en/users':
+            return self.en_admin('GET', '/users')
         if u.path in ('/', '/index.html'):
             return self.file('index.html', 'text/html; charset=utf-8')
         self.send_json(HTTPStatus.NOT_FOUND, {'error': 'not found'})
+
+    def do_POST(self):
+        if urlparse(self.path).path != '/api/en/reset-pin':
+            return self.send_json(HTTPStatus.NOT_FOUND, {'error': 'not found'})
+        # Basic auth được trình duyệt tự gửi kèm, nên form của trang khác cũng POST được tới đây.
+        # Header tự đặt buộc trình duyệt hỏi CORS trước (mà ta không cho) → chỉ trang này gọi được.
+        if self.headers.get('X-Admin') != '1':
+            return self.send_json(HTTPStatus.FORBIDDEN, {'error': 'forbidden'})
+        try:
+            n = int(self.headers.get('Content-Length') or 0)
+            if n > 4096:
+                raise ValueError
+            name = json.loads(self.rfile.read(n) or b'{}').get('name')
+            if not isinstance(name, str) or not USER_RE.match(name):
+                raise ValueError
+        except (ValueError, TypeError, AttributeError):
+            return self.send_json(HTTPStatus.BAD_REQUEST, {'error': 'Tên không hợp lệ'})
+        self.en_admin('POST', '/reset-pin', {'name': name})
+
+    def en_admin(self, method, path, body=None):
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request(EN_ADMIN + path, data, {'Content-Type': 'application/json'}, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                status, out = r.status, r.read()
+        except urllib.error.HTTPError as e:
+            status, out = e.code, e.read()
+        except OSError:
+            return self.send_json(HTTPStatus.BAD_GATEWAY, {'error': 'Không kết nối được máy chủ en.duyetnt.com'})
+        try:
+            return self.send_json(status, json.loads(out))
+        except ValueError:
+            return self.send_json(HTTPStatus.BAD_GATEWAY, {'error': 'Máy chủ en.duyetnt.com trả lời không hợp lệ'})
 
     def file(self, name, ctype):
         with open(os.path.join(self.static_dir, name), 'rb') as f:
@@ -157,14 +197,16 @@ class Web(Base):
 
 
 def main():
-    global db
+    global db, EN_ADMIN
     ap = argparse.ArgumentParser()
     ap.add_argument('--host', default='127.0.0.1')
     ap.add_argument('--port', type=int, default=8095)
     ap.add_argument('--ingest-port', type=int, default=8096)
     ap.add_argument('--db', default='/var/lib/duyetnt-admin/admin.db')
+    ap.add_argument('--en-admin', default=EN_ADMIN, help='cổng quản trị nội bộ của en-learn')
     ap.add_argument('--static', default=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'web'))
     a = ap.parse_args()
+    EN_ADMIN = a.en_admin.rstrip('/')
     db = open_db(a.db)
     Web.static_dir = os.path.abspath(a.static)
     ing = ThreadingHTTPServer((a.host, a.ingest_port), Ingest)
