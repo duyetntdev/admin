@@ -4,6 +4,7 @@ Tổng hợp lượt truy cập của en.duyetnt.com và nihongo.duyetnt.com (us
 
 - `server/admin.py`: dịch vụ Python (chỉ dùng thư viện chuẩn, SQLite). Cổng 8095 phục vụ giao diện web và API đọc, cổng 8096 nhận sự kiện từ 2 API học. Cả hai cổng chỉ nghe trên 127.0.0.1, và cổng 8096 không bao giờ được đưa ra nginx.
 - `web/index.html`: giao diện.
+- `homepage/index.html`: trang chủ tĩnh của duyetnt.com, giới thiệu en.duyetnt.com và nihongo.duyetnt.com (một file HTML, không cần build).
 - `deploy/`: systemd unit, site nginx (basic auth), `setup-server.sh`, `backfill.py` (nhập dữ liệu cũ một lần).
 - 2 API học (`en-learn/server/app.py`, `nihongo-it/server/progress-api.mjs`) gửi sự kiện khi mở trang, đăng nhập, đăng ký hoặc lưu bài. Các sự kiện cách nhau dưới 30 phút được gộp thành 1 lượt.
 
@@ -11,7 +12,10 @@ Tổng hợp lượt truy cập của en.duyetnt.com và nihongo.duyetnt.com (us
 
 ```bash
 ./deploy.sh      # lần đầu tạo mật khẩu ở .admin-password (tài khoản: admin)
+./deploy-home.sh # trang chủ duyetnt.com (homepage/index.html → /var/www/duyetnt-home, nginx: deploy/nginx-home.conf)
 ```
+
+Cấu hình nginx cũ của duyetnt.com (khi còn chạy Docker) được giữ ở `/etc/nginx/sites-available/duyetnt.com.bak-docker`.
 
 Đổi mật khẩu: xoá `.admin-password` rồi chạy lại `./deploy.sh`.
 Dữ liệu trên server: `/var/lib/duyetnt-admin/admin.db`. Log: `journalctl -u duyetnt-admin -f`.

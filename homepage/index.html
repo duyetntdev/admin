@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>duyetnt.com</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Hai trang học ngoại ngữ miễn phí: Bé Vui Học Tiếng Anh cho trẻ em và N3 IT Nihongo cho kỹ sư IT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Baloo+2:wght@600;800&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+/* Layout: one quiet frame holding two "doors"; each door wears its own site's identity (playful orange / ink + hanko red). */
+:root{
+  --bg:#f7f8fb; --surface:#ffffff; --ink:#1b1e24; --ink-2:#555b66; --line:#d9dde3;
+  --en-bg:#fff4e3; --en-ink:#2b2a4c; --en-muted:#5f5c80; --en-accent:#f2753f; --en-chip:#ffffff;
+  --en-bg-1:#fff59a; --en-bg-2:#ffd3e4; --en-bg-3:#bfe8ff; --en-glow:rgba(255,255,255,.75);
+  --en-pink:#ef4f8b; --en-orange:#f2753f; --en-green:#22a565; --en-blue:#2f86e0; --en-purple:#8a5cf0; --en-yellow:#ffc531;
+  --chip-1:#ffe3ee; --chip-2:#ffe9d6; --chip-3:#dcf5e7; --chip-4:#dcecff; --chip-5:#ece3ff; --chip-6:#fff3c4;
+  --jp-bg:#f6f4ef; --jp-ink:#1f1d1a; --jp-muted:#5c574e; --jp-accent:#c8442f; --jp-line:#e2ddd2;
+  --ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --kid:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
+  --jpf:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --r:20px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+a:focus-visible{outline:3px solid currentColor;outline-offset:3px;border-radius:12px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:36px}
+
+/* Header */
+header{display:flex;flex-direction:column;gap:10px;max-width:640px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.02em;color:var(--ink-2)}
+.brand b{color:var(--ink)}
+h1{margin:0;font-size:clamp(30px,5vw,46px);line-height:1.12;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+header p{margin:0;color:var(--ink-2);font-size:17px;max-width:60ch}
+
+/* Doors */
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:820px){.doors{grid-template-columns:1fr}}
+.door{border-radius:var(--r);padding:28px;display:flex;flex-direction:column;gap:18px;min-width:0;
+  text-decoration:none;border:1px solid transparent;transition:transform .2s ease,box-shadow .2s ease}
+.door:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.08)}
+.door .who{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.door h2{margin:0;line-height:1.1}
+.door .lead{margin:0;font-size:16px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0;padding:0;list-style:none;font-size:14px}
+.facts b{font-size:22px;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+.go{margin-top:auto;display:inline-flex;align-items:center;gap:10px;align-self:flex-start;
+  font-weight:700;font-size:15px;padding:12px 18px;border-radius:999px;color:#fff}
+.go span{transition:transform .2s}
+.door:hover .go span{transform:translateX(4px)}
+
+/* English door */
+.en{color:var(--en-ink);position:relative;overflow:hidden;isolation:isolate;
+  background:radial-gradient(120% 70% at 0% 0%,var(--en-glow),transparent 60%),
+    linear-gradient(140deg,var(--en-bg-1) 0%,var(--en-bg-2) 55%,var(--en-bg-3) 100%)}
+.en-head{display:flex;align-items:center;gap:14px}
+.owl{font-size:58px;line-height:1;flex:none;display:inline-block;transform-origin:50% 100%;
+  animation:hop 1.6s cubic-bezier(.3,0,.4,1) infinite;filter:drop-shadow(0 6px 4px rgba(43,42,76,.18))}
+@keyframes hop{
+  0%,100%{transform:translateY(0) scale(1.06,.94)}
+  15%{transform:translateY(0) scale(.96,1.05)}
+  40%{transform:translateY(-18px) rotate(-8deg)}
+  60%{transform:translateY(-18px) rotate(8deg)}
+  85%{transform:translateY(0) scale(1.08,.92)}
+}
+@media (prefers-reduced-motion:reduce){.owl{animation:none}}
+.en>*{position:relative}
+.en .confetti{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.en .confetti i{position:absolute;border-radius:50%;opacity:.55}
+.en .confetti i:nth-child(1){width:90px;height:90px;right:-22px;top:-22px;background:var(--en-yellow)}
+.en .confetti i:nth-child(2){width:26px;height:26px;right:84px;top:30px;background:var(--en-pink)}
+.en .confetti i:nth-child(3){width:14px;height:14px;right:40px;top:96px;background:var(--en-blue)}
+.en .confetti i:nth-child(4){width:60px;height:60px;right:-14px;bottom:70px;background:var(--en-green);opacity:.35}
+.en .confetti i:nth-child(5){width:18px;height:18px;right:110px;bottom:28px;background:var(--en-purple)}
+.en .confetti b{position:absolute;right:30px;top:40px;font-size:26px;color:var(--en-orange);transform:rotate(14deg)}
+.en .who{color:var(--en-pink)}
+.en h2{font-family:var(--kid);font-weight:800;font-size:clamp(30px,4vw,42px);display:flex;flex-wrap:wrap;gap:0 .28em}
+.en h2 .w1{color:var(--en-pink)} .en h2 .w2{color:var(--en-orange)} .en h2 .w3{color:var(--en-green)}
+.en h2 .w4{color:var(--en-blue)} .en h2 .w5{color:var(--en-purple)}
+.en h2 span{display:inline-block;transition:transform .2s}
+.en:hover h2 .w2{transform:rotate(-6deg) translateY(-2px)} .en:hover h2 .w4{transform:rotate(5deg) translateY(-2px)}
+.en .lead,.en .facts{color:var(--en-muted)}
+.en .facts b{font-family:var(--kid);font-size:26px}
+.en .facts li:nth-child(1) b{color:var(--en-pink)} .en .facts li:nth-child(2) b{color:var(--en-green)}
+.en .facts li:nth-child(3) b{color:var(--en-blue)}
+.topics{display:flex;flex-wrap:wrap;gap:8px}
+.topics span{border-radius:14px;padding:6px 12px 6px 8px;font-weight:700;font-size:14px;color:var(--en-ink);
+  display:inline-flex;align-items:center;gap:6px;border-bottom:3px solid}
+.topics span:nth-child(1){background:var(--chip-1);border-color:var(--en-pink)}
+.topics span:nth-child(2){background:var(--chip-2);border-color:var(--en-orange)}
+.topics span:nth-child(3){background:var(--chip-3);border-color:var(--en-green)}
+.topics span:nth-child(4){background:var(--chip-4);border-color:var(--en-blue)}
+.topics span:nth-child(5){background:var(--chip-5);border-color:var(--en-purple)}
+.topics span:nth-child(6){background:var(--chip-6);border-color:var(--en-yellow)}
+.topics span:nth-child(odd){transform:rotate(-1.5deg)} .topics span:nth-child(even){transform:rotate(1.5deg)}
+.topics i{font-style:normal;font-size:20px;line-height:1}
+.en .go{background:linear-gradient(90deg,var(--en-orange),var(--en-pink));font-family:var(--kid);font-size:18px;
+  border-radius:16px;box-shadow:0 4px 0 rgba(43,42,76,.22)}
+
+/* Japanese door */
+.jp{background:var(--jp-bg);color:var(--jp-ink);border-color:var(--jp-line)}
+.jp .who{color:var(--jp-accent)}
+.jp h2{font-weight:800;font-size:clamp(28px,3.6vw,36px);letter-spacing:-.01em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hanko{font-family:var(--jpf);font-weight:700;font-size:18px;color:var(--jp-accent);border:2px solid var(--jp-accent);
+  border-radius:8px;padding:2px 7px;line-height:1.3;transform:rotate(-4deg)}
+.jp .lead,.jp .facts{color:var(--jp-muted)}
+.jp .facts b{color:var(--jp-ink)}
+.steps{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0;list-style:none;border:1px solid var(--jp-line);border-radius:12px;overflow:hidden}
+.steps li{flex:1 1 0;min-width:64px;padding:8px 6px;text-align:center;border-right:1px solid var(--jp-line);font-size:12px;color:var(--jp-muted)}
+.steps li:last-child{border-right:0}
+.steps .k{display:block;font-family:var(--jpf);font-size:17px;font-weight:700;color:var(--jp-ink)}
+.steps li.test .k{color:var(--jp-accent)}
+.sample{font-family:var(--jpf);font-size:15px;color:var(--jp-ink);display:flex;flex-direction:column;gap:4px;
+  border-left:3px solid var(--jp-accent);padding-left:12px}
+.sample ruby rt{font-size:.6em;color:var(--jp-muted)}
+.jp .go{background:var(--jp-accent);border-radius:10px}
+
+/* Shared */
+.shared{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:24px;align-items:start}
+@media (max-width:820px){.shared{grid-template-columns:1fr}}
+.shared h3{margin:0;font-size:20px;line-height:1.3;text-wrap:balance}
+.shared ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:640px){.shared ul{grid-template-columns:1fr}}
+.shared li{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--ink-2)}
+.shared li b{color:var(--ink);font-size:15px}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:var(--ink-2);font-size:14px;
+  border-top:1px solid var(--line);padding-top:18px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>duyetnt</b>.com</div>
+    <h1>Hai trang học ngoại ngữ, mở trình duyệt là học được</h1>
+    <p>Một trang tiếng Anh cho các bé mới bắt đầu, một trang tiếng Nhật N3 cho người làm IT. Cả hai đều miễn phí, không quảng cáo, có giọng đọc cho từng câu.</p>
+  </header>
+
+  <main class="doors">
+    <a class="door en" href="https://en.duyetnt.com">
+      <div class="confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><b>★</b></div>
+      <div class="who">Cho trẻ em · en.duyetnt.com</div>
+      <div class="en-head">
+        <span class="owl" aria-hidden="true">🦉</span>
+        <h2><span class="w1">Bé</span><span class="w2">Vui</span><span class="w3">Học</span><span class="w4">Tiếng</span><span class="w5">Anh</span></h2>
+      </div>
+      <p class="lead">Từ vựng có hình, hội thoại ngắn, ngữ pháp đơn giản và trò luyện tập. Bé làm đúng 12/15 câu kiểm tra là qua bài, qua Cấp 1 thì mở Cấp 2, rồi Cấp 3.</p>
+      <div class="topics" aria-label="Một số chủ đề">
+        <span><i>🐶</i>Animals</span><span><i>🎨</i>Colors</span><span><i>🔢</i>Numbers</span>
+        <span><i>👨‍👩‍👧</i>Family</span><span><i>🍎</i>Food</span><span><i>☀️</i>Weather</span>
+      </div>
+      <ul class="facts">
+        <li><b>12</b>chủ đề</li>
+        <li><b>3</b>cấp mỗi chủ đề</li>
+        <li><b>1001</b>file phát âm</li>
+        <li><b>🏆</b>bảng vinh danh</li>
+      </ul>
+      <span class="go">Vào học tiếng Anh <span aria-hidden="true">→</span></span>
+    </a>
+
+    <a class="door jp" href="https://nihongo.duyetnt.com">
+      <div class="who">Cho kỹ sư IT · nihongo.duyetnt.com</div>
+      <h2>N3 IT Nihongo <span class="hanko" aria-hidden="true">日本語</span></h2>
+      <p class="lead">20 bài theo tình huống thật ở công ty phần mềm Nhật: báo bug, họp chốt spec, code review, xử lý sự cố server, phỏng vấn chuyển việc.</p>
+      <div class="sample" lang="ja">
+        <span>第2課　バグを<ruby>報告<rt>ほうこく</rt></ruby>する</span>
+        <span>第6課　コードレビューを<ruby>受<rt>う</rt></ruby>ける</span>
+      </div>
+      <ol class="steps" aria-label="7 phần của mỗi bài">
+        <li><span class="k" lang="ja">語彙</span>Từ vựng</li>
+        <li><span class="k" lang="ja">文法</span>Ngữ pháp</li>
+        <li><span class="k" lang="ja">聴解</span>Nghe</li>
+        <li><span class="k" lang="ja">会話</span>Hội thoại</li>
+        <li><span class="k" lang="ja">読解</span>Đọc</li>
+        <li class="test"><span class="k" lang="ja">試験</span>Kiểm tra</li>
+        <li><span class="k" lang="ja">漢字</span>Kanji</li>
+      </ol>
+      <ul class="facts">
+        <li><b>20</b>bài</li>
+        <li><b>7</b>phần mỗi bài</li>
+        <li><b>80%</b>để qua bài</li>
+        <li><b>974</b>file giọng đọc</li>
+      </ul>
+      <span class="go">Vào học tiếng Nhật <span aria-hidden="true">→</span></span>
+    </a>
+  </main>
+
+  <section class="shared">
+    <h3>Tiến độ được lưu theo tên của bạn</h3>
+    <ul>
+      <li><b>Tên và mã PIN 4 số</b>Lần đầu vào, đặt một tên chưa ai dùng và một mã PIN. Không cần email.</li>
+      <li><b>Học tiếp trên máy khác</b>Sang điện thoại hay máy tính khác, nhập lại tên và PIN là thấy bài đang học.</li>
+      <li><b>Mất mạng vẫn học</b>Trình duyệt giữ một bản sao, có mạng lại thì tự gửi lên máy chủ.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>© 2026 duyetnt</span>
+    <span>en.duyetnt.com · nihongo.duyetnt.com</span>
+  </footer>
+</div>
+</body>
+</html>
