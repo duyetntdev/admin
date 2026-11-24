@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · duyetnt.com</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#6b7385; --line:#e4e7ec;
+  --en:#2f7de1; --nihongo:#d9485f; --accent:#1d2330; --chip:#eef1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14171d; --card:#1c2029; --text:#e6e9ef; --muted:#97a0b2; --line:#2c3240;
+         --en:#5b9cf0; --nihongo:#ef6b80; --accent:#e6e9ef; --chip:#262b36; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{font-size:17px;margin:0;font-weight:650}
+header .upd{color:var(--muted);font-size:12.5px}
+main{max-width:1200px;margin:0 auto;padding:20px 16px 48px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
+.filters input,.filters select,.filters button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.filters button{cursor:pointer}
+.filters button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.filters .sep{flex:1}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card .k{color:var(--muted);font-size:12.5px}
+.card .v{font-size:26px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums}
+.card .s{color:var(--muted);font-size:12.5px;margin-top:2px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+section h2{font-size:14.5px;margin:0 0 12px;font-weight:650;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+section h2 small{color:var(--muted);font-weight:400;font-size:12.5px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chart{display:flex;align-items:flex-end;gap:3px;height:150px;padding-top:8px;overflow-x:auto}
+.col{flex:1 0 14px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:14px}
+.bar{width:100%;max-width:34px;display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;min-height:1px;background:var(--line)}
+.bar i{display:block}
+.col .lbl{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.col .n{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:550;font-size:12.5px;position:sticky;top:0;background:var(--card)}
+tr:last-child td{border-bottom:0}
+td.u{font-weight:600}
+.site{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
+.site.en{background:var(--en)} .site.nihongo{background:var(--nihongo)}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--chip);color:var(--muted)}
+.muted{color:var(--muted)}
+a.lnk{color:inherit;text-decoration:none;border-bottom:1px dashed var(--muted);cursor:pointer}
+.empty{color:var(--muted);text-align:center;padding:24px}
+.grid2{display:grid;grid-template-columns:1fr;gap:18px}
+.err{background:#fde8ea;color:#8a1c2b;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:none}
+@media (max-width:600px){ header{padding:14px 16px} .card .v{font-size:22px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Lượt truy cập · en.duyetnt.com &amp; nihongo.duyetnt.com</h1>
+  <span class="upd" id="upd"></span>
+</header>
+<main>
+  <div class="err" id="err"></div>
+  <div class="filters">
+    <button data-r="0">Hôm nay</button>
+    <button data-r="6" class="on">7 ngày</button>
+    <button data-r="29">30 ngày</button>
+    <button data-r="89">90 ngày</button>
+    <input type="date" id="from" aria-label="Từ ngày"> <span class="muted">→</span> <input type="date" id="to" aria-label="Đến ngày">
+    <select id="site" aria-label="Site">
+      <option value="">Cả 2 site</option>
+      <option value="en">en.duyetnt.com</option>
+      <option value="nihongo">nihongo.duyetnt.com</option>
+    </select>
+    <input type="search" id="user" placeholder="Tìm username…" aria-label="Tìm username">
+    <span class="sep"></span>
+    <button id="reload" title="Tải lại">↻ Tải lại</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <section>
+    <h2>Lượt truy cập theo ngày
+      <span class="legend"><span><i class="dot" style="background:var(--en)"></i>en</span><span><i class="dot" style="background:var(--nihongo)"></i>nihongo</span></span>
+    </h2>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section>
+    <h2>Theo người dùng <small id="usersNote"></small></h2>
+    <div class="tw"><table>
+      <thead><tr><th>Username</th><th>Site</th><th>Số lượt</th><th>Lần đầu (trong khoảng)</th><th>Lần gần nhất</th></tr></thead>
+      <tbody id="users"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Chi tiết từng lượt truy cập <small id="visitsNote"></small></h2>
+    <div class="tw"><table>
+      <thead><tr><th>Username</th><th>Site</th><th>Ngày</th><th>Giờ vào</th><th>Hoạt động đến</th><th>Thời lượng</th><th>Cách vào</th><th>Thiết bị</th><th>IP</th></tr></thead>
+      <tbody id="visits"></tbody>
+    </table></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const TZ = 'Asia/Ho_Chi_Minh';
+const KIND = {open:'Mở trang', login:'Đăng nhập', register:'Đăng ký mới', save:'Đang học'};
+const SITE = {en:'en', nihongo:'nihongo'};
+const fmtD = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
+const fmtT = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+const fmtDT = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
+const isoVN = d => new Intl.DateTimeFormat('en-CA', {timeZone:TZ}).format(d);   // YYYY-MM-DD theo giờ VN
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const siteTag = s => `<span class="site ${s}">${SITE[s] || esc(s)}</span>`;
+
+function device(ua){
+  if(!ua) return '—';
+  const os = /iPad/.test(ua)?'iPad': /iPhone/.test(ua)?'iPhone': /Android/.test(ua)?'Android': /Windows/.test(ua)?'Windows':
+             /Mac OS X|Macintosh/.test(ua)?'Mac': /CrOS/.test(ua)?'ChromeOS': /Linux/.test(ua)?'Linux':'Khác';
+  const br = /Edg\//.test(ua)?'Edge': /OPR\//.test(ua)?'Opera': /SamsungBrowser/.test(ua)?'Samsung': /CriOS|Chrome\//.test(ua)?'Chrome':
+             /FxiOS|Firefox\//.test(ua)?'Firefox': /Safari\//.test(ua)?'Safari':'';
+  return br ? `${os} · ${br}` : os;
+}
+function dur(s){
+  if(s < 60) return '< 1 phút';
+  const m = Math.round(s/60); return m < 60 ? `${m} phút` : `${Math.floor(m/60)} giờ ${m%60} phút`;
+}
+
+function setRange(days){
+  const now = new Date();
+  $('to').value = isoVN(now);
+  $('from').value = isoVN(new Date(now - days*86400e3));
+  document.querySelectorAll('[data-r]').forEach(b => b.classList.toggle('on', +b.dataset.r === days));
+}
+
+let timer;
+async function load(){
+  const q = new URLSearchParams({from:$('from').value, to:$('to').value, site:$('site').value, user:$('user').value.trim()});
+  try{
+    const r = await fetch('api/visits?' + q, {cache:'no-store'});
+    if(!r.ok) throw new Error('Máy chủ trả về mã ' + r.status);
+    const d = await r.json();
+    render(d);
+    $('err').style.display = 'none';
+    $('upd').textContent = 'Cập nhật lúc ' + fmtT.format(new Date());
+  }catch(e){
+    $('err').textContent = 'Không tải được dữ liệu: ' + e.message;
+    $('err').style.display = 'block';
+  }
+}
+
+function render(d){
+  const v = d.visits;
+  const by = s => v.filter(x => x.site === s);
+  const uniq = arr => new Set(arr.map(x => x.site + ':' + x.user.toLowerCase())).size;
+  const today = isoVN(new Date());
+  const vt = v.filter(x => isoVN(new Date(x.start*1000)) === today);
+  const reg = v.filter(x => x.kind === 'register').length;
+  const totalSec = v.reduce((a,x) => a + (x.last - x.start), 0);
+  $('cards').innerHTML = [
+    ['Lượt truy cập', v.length, `en ${by('en').length} · nihongo ${by('nihongo').length}`],
+    ['Người dùng', uniq(v), `en ${uniq(by('en'))} · nihongo ${uniq(by('nihongo'))}`],
+    ['Hôm nay', vt.length, `${uniq(vt)} người dùng`],
+    ['Đăng ký mới', reg, 'trong khoảng đã chọn'],
+    ['Thời gian học (ước tính)', dur(totalSec).replace('< 1 phút','0 phút'), v.length ? `TB ${dur(totalSec / v.length)} / lượt` : ''],
+  ].map(([k,val,s]) => `<div class="card"><div class="k">${k}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
+
+  // biểu đồ theo ngày
+  const days = [];
+  for(let t = new Date($('from').value + 'T12:00:00+07:00'); isoVN(t) <= d.to; t = new Date(+t + 86400e3)) days.push(isoVN(t));
+  const cnt = {}; v.forEach(x => { const k = isoVN(new Date(x.start*1000)); (cnt[k] ||= {en:0, nihongo:0})[x.site]++; });
+  const max = Math.max(1, ...days.map(k => (cnt[k]?.en||0) + (cnt[k]?.nihongo||0)));
+  const step = days.length > 45 ? 7 : days.length > 16 ? 3 : 1;
+  $('chart').innerHTML = days.map((k,i) => {
+    const c = cnt[k] || {en:0, nihongo:0}, tot = c.en + c.nihongo, h = tot / max * 100;
+    return `<div class="col" title="${k}: en ${c.en}, nihongo ${c.nihongo}">
+      <span class="n">${tot || ''}</span>
+      <div class="bar" style="height:${Math.max(h, 1)}%">${tot ? `<i style="flex:${c.en};background:var(--en)"></i><i style="flex:${c.nihongo};background:var(--nihongo)"></i>` : ''}</div>
+      <span class="lbl">${i % step === 0 ? k.slice(8) + '/' + k.slice(5,7) : '&nbsp;'}</span></div>`;
+  }).join('');
+
+  // theo người dùng
+  const um = {};
+  v.forEach(x => { const k = x.site + ':' + x.user.toLowerCase();
+    const u = um[k] ||= {user:x.user, site:x.site, n:0, first:x.start, last:x.last};
+    u.n++; u.first = Math.min(u.first, x.start); u.last = Math.max(u.last, x.last); });
+  const users = Object.values(um).sort((a,b) => b.last - a.last);
+  $('usersNote').textContent = users.length ? `${users.length} người` : '';
+  $('users').innerHTML = users.length ? users.map(u => `<tr>
+      <td class="u"><a class="lnk" data-user="${esc(u.user)}">${esc(u.user)}</a></td><td>${siteTag(u.site)}</td><td>${u.n}</td>
+      <td>${fmtDT.format(new Date(u.first*1000))}</td><td>${fmtDT.format(new Date(u.last*1000))}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="empty">Chưa có lượt truy cập nào trong khoảng này</td></tr>';
+
+  // chi tiết
+  $('visitsNote').textContent = v.length ? `${v.length} lượt${d.truncated ? ' (chỉ hiện 5000 lượt mới nhất)' : ''} · giờ Việt Nam` : '';
+  $('visits').innerHTML = v.length ? v.map(x => { const s = new Date(x.start*1000), l = new Date(x.last*1000); return `<tr>
+      <td class="u"><a class="lnk" data-user="${esc(x.user)}">${esc(x.user)}</a></td><td>${siteTag(x.site)}</td>
+      <td>${fmtD.format(s)}</td><td>${fmtT.format(s)}</td><td>${x.last > x.start ? fmtT.format(l) : '<span class="muted">—</span>'}</td>
+      <td>${dur(x.last - x.start)}</td><td><span class="chip">${KIND[x.kind] || esc(x.kind)}</span></td>
+      <td title="${esc(x.ua)}">${esc(device(x.ua))}</td><td class="muted">${esc(x.ip || '—')}</td></tr>`; }).join('')
+    : '<tr><td colspan="9" class="empty">Chưa có lượt truy cập nào trong khoảng này</td></tr>';
+}
+
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { setRange(+b.dataset.r); load(); });
+['from','to'].forEach(id => $(id).onchange = () => { document.querySelectorAll('[data-r]').forEach(b => b.classList.remove('on')); load(); });
+$('site').onchange = load;
+let deb; $('user').oninput = () => { clearTimeout(deb); deb = setTimeout(load, 300); };
+$('reload').onclick = load;
+document.addEventListener('click', e => { const a = e.target.closest('[data-user]'); if(a){ $('user').value = a.dataset.user; load(); window.scrollTo({top:0, behavior:'smooth'}); } });
+setRange(6); load();
+setInterval(() => { if(!document.hidden) load(); }, 60e3);
+</script>
+</body>
+</html>

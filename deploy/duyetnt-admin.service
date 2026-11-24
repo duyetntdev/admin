@@ -1,0 +1,25 @@
+# Trang quản trị admin.duyetnt.com (server/admin.py) – cài bằng deploy/setup-server.sh
+[Unit]
+Description=admin.duyetnt.com - tong hop luot truy cap
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/duyetnt-admin/admin.py --host 127.0.0.1 --port 8095 --ingest-port 8096 --db /var/lib/duyetnt-admin/admin.db --static /opt/duyetnt-admin/web
+Environment=PYTHONUNBUFFERED=1
+DynamicUser=yes
+StateDirectory=duyetnt-admin
+Restart=always
+RestartSec=2
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=150M
+
+[Install]
+WantedBy=multi-user.target
