@@ -6,74 +6,117 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Admin · duyetnt.com</title>
 <style>
+/* Bảng màu theo skill dataviz (đã chạy kiểm tra mù màu): en / Học = xanh dương, nihongo = đỏ, Trò chơi = cam. */
 :root{
-  --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#6b7385; --line:#e4e7ec;
-  --en:#2f7de1; --nihongo:#d9485f; --accent:#1d2330; --chip:#eef1f5;
+  --bg:#f4f5f7; --card:#fff; --text:#1a1d24; --muted:#636b7a; --line:#e3e6eb; --soft:#f1f3f6; --grid:#eceef2;
+  --en:#2a78d6; --nihongo:#e34948; --learn:#2a78d6; --game:#eb6834; --other:#a3a9b4;
+  --good:#1a7f45; --good-soft:#e3f5ea; --bad:#b4232c; --bad-soft:#fde8ea; --accent:#1a1d24;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#14171d; --card:#1c2029; --text:#e6e9ef; --muted:#97a0b2; --line:#2c3240;
-         --en:#5b9cf0; --nihongo:#ef6b80; --accent:#e6e9ef; --chip:#262b36; }
+  :root{ --bg:#121418; --card:#1b1e24; --text:#e8eaee; --muted:#9aa2b1; --line:#2b3039; --soft:#23272f; --grid:#262a32;
+         --en:#3987e5; --nihongo:#e66767; --learn:#3987e5; --game:#d95926; --other:#666d7a;
+         --good:#5cc489; --good-soft:#163222; --bad:#f08a94; --bad-soft:#3a1820; --accent:#e8eaee; }
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;border-bottom:1px solid var(--line);background:var(--card)}
-header h1{font-size:17px;margin:0;font-weight:650}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.hwrap{max-width:1240px;margin:0 auto;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px}
+.htop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+header h1{font-size:17px;margin:0;font-weight:700}
 header .upd{color:var(--muted);font-size:12.5px}
-main{max-width:1200px;margin:0 auto;padding:20px 16px 48px}
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
-.filters input,.filters select,.filters button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav a{padding:9px 14px;border-bottom:2px solid transparent;color:var(--muted);text-decoration:none;font-weight:600;white-space:nowrap}
+nav a.on{color:var(--text);border-color:var(--accent)}
+main{max-width:1240px;margin:0 auto;padding:16px 16px 56px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.filters input,.filters select,.filters button,.pg select{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
 .filters button{cursor:pointer}
 .filters button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
 .filters .sep{flex:1}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.note{color:var(--muted);font-size:12.5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
 .card .k{color:var(--muted);font-size:12.5px}
-.card .v{font-size:26px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums}
+.card .v{font-size:26px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
 .card .s{color:var(--muted);font-size:12.5px;margin-top:2px}
-section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
-section h2{font-size:14.5px;margin:0 0 12px;font-weight:650;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;min-width:0}
+section h2{font-size:14.5px;margin:0 0 4px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 section h2 small{color:var(--muted);font-weight:400;font-size:12.5px}
-.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
-.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.chart{display:flex;align-items:flex-end;gap:3px;height:150px;padding-top:8px;overflow-x:auto}
-.col{flex:1 0 14px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:14px}
-.bar{width:100%;max-width:34px;display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;min-height:1px;background:var(--line)}
-.bar i{display:block}
-.col .lbl{font-size:10.5px;color:var(--muted);white-space:nowrap}
-.col .n{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+section .sub{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.cols section{margin-bottom:0}
+.cols + section,.cols + .cols{margin-top:16px}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+svg.chart{display:block;width:100%;min-width:560px;height:auto;overflow:visible}
+svg.chart text{fill:var(--muted);font-size:11px;font-family:inherit}
+svg.chart .gl{stroke:var(--grid);stroke-width:1}
+svg.chart .hit{fill:transparent;cursor:default}
+svg.chart .hit:hover{fill:var(--soft);fill-opacity:.6}
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--text);color:var(--bg);border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.45;max-width:260px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.tip b{font-weight:700}
+.hbars{display:flex;flex-direction:column;gap:6px}
+.hb{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:10px;align-items:center;font-size:13px}
+.hb .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .tr{height:16px;background:var(--soft);border-radius:4px;overflow:hidden}
+.hb .tr i{display:block;height:100%;border-radius:0 4px 4px 0}
+.hb .vv{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;white-space:nowrap}
+.hb .vv b{color:var(--text)}
+@media (max-width:560px){.hb{grid-template-columns:100px minmax(0,1fr) 92px}.hb .vv span{display:none}}
 .tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--muted);font-weight:550;font-size:12.5px;position:sticky;top:0;background:var(--card)}
+th{color:var(--muted);font-weight:600;font-size:12.5px;background:var(--card)}
+th.r,td.r{text-align:right}
 tr:last-child td{border-bottom:0}
 td.u{font-weight:600}
 .site{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
 .site.en{background:var(--en)} .site.nihongo{background:var(--nihongo)}
-.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--chip);color:var(--muted)}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--soft);color:var(--muted)}
+.chip.learn{color:var(--learn)} .chip.game{color:var(--game)}
 .muted{color:var(--muted)}
 a.lnk{color:inherit;text-decoration:none;border-bottom:1px dashed var(--muted);cursor:pointer}
-.empty{color:var(--muted);text-align:center;padding:24px}
-.grid2{display:grid;grid-template-columns:1fr;gap:18px}
-.err{background:#fde8ea;color:#8a1c2b;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:none}
+.empty{color:var(--muted);text-align:center;padding:24px;white-space:normal}
+.meter{display:inline-flex;align-items:center;gap:8px}
+.meter span{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.meter span i{display:block;height:100%;background:var(--learn)}
+.pg{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+.pg .pb{display:flex;gap:4px;flex-wrap:wrap}
+.pg button{font:inherit;min-width:32px;padding:5px 9px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:7px;cursor:pointer}
+.pg button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.pg button:disabled{opacity:.4;cursor:default}
+.err,.ok{border-radius:8px;padding:10px 12px;margin-bottom:12px;display:none}
+.err{background:var(--bad-soft);color:var(--bad)} .ok{background:var(--good-soft);color:var(--good)}
+.insights{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.insights li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;background:var(--soft);border-radius:10px;padding:10px 12px}
 .pinbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .pinbar input{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px;flex:1;min-width:180px;max-width:320px}
 button.reset{font:inherit;font-size:12.5px;cursor:pointer;border:1px solid var(--nihongo);color:var(--nihongo);background:transparent;border-radius:8px;padding:3px 10px}
 button.reset:hover{background:var(--nihongo);color:#fff}
 button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var(--nihongo)}
-.ok{background:#e3f6e8;color:#14532d;border-radius:8px;padding:10px 12px;margin-bottom:10px;display:none}
-.pinlist{max-height:360px;overflow-y:auto}
-@media (prefers-color-scheme: dark){ .ok{background:#163222;color:#a7e3b8} .err{background:#3a1820;color:#f5b3bd} }
-@media (max-width:600px){ header{padding:14px 16px} .card .v{font-size:22px} }
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:30;padding:16px}
+.modal .box{background:var(--card);border-radius:14px;padding:20px;max-width:420px;display:flex;flex-direction:column;gap:12px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end}
+.modal button{font:inherit;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer}
+.modal button.danger{background:var(--nihongo);border-color:var(--nihongo);color:#fff}
+.tab[hidden]{display:none}
+@media (max-width:600px){ .card .v{font-size:22px} }
 </style>
 </head>
 <body>
-<header>
-  <h1>Lượt truy cập · en.duyetnt.com &amp; nihongo.duyetnt.com</h1>
-  <span class="upd" id="upd"></span>
-</header>
+<header><div class="hwrap">
+  <div class="htop"><h1>Admin · duyetnt.com</h1><span class="upd" id="upd"></span></div>
+  <nav aria-label="Các mục">
+    <a href="#overview" data-tab="overview">Tổng quan</a>
+    <a href="#behavior" data-tab="behavior">Hành vi học sinh · en</a>
+    <a href="#visits" data-tab="visits">Lượt truy cập</a>
+    <a href="#pins" data-tab="pins">Hồ sơ &amp; mã PIN · en</a>
+  </nav>
+</div></header>
 <main>
   <div class="err" id="err"></div>
-  <div class="filters">
+  <div class="filters" id="filters">
     <button data-r="0">Hôm nay</button>
     <button data-r="6" class="on">7 ngày</button>
     <button data-r="29">30 ngày</button>
@@ -89,57 +132,144 @@ button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var
     <button id="reload" title="Tải lại">↻ Tải lại</button>
   </div>
 
-  <div class="cards" id="cards"></div>
+  <!-- ================= TỔNG QUAN ================= -->
+  <div class="tab" id="tab-overview">
+    <div class="cards" id="cards"></div>
+    <section>
+      <h2>Lượt truy cập theo ngày
+        <span class="legend"><span><i class="dot" style="background:var(--en)"></i>en</span><span><i class="dot" style="background:var(--nihongo)"></i>nihongo</span></span></h2>
+      <p class="sub">Mỗi cột là một ngày, chia theo site. Rê chuột vào cột để xem số liệu.</p>
+      <div class="tw" id="chart"></div>
+    </section>
+    <section>
+      <h2>Theo người dùng <small id="usersNote"></small></h2>
+      <div class="tw"><table>
+        <thead><tr><th>Username</th><th>Site</th><th class="r">Số lượt</th><th class="r">Tổng thời gian</th><th>Lần đầu (trong khoảng)</th><th>Lần gần nhất</th></tr></thead>
+        <tbody id="users"></tbody>
+      </table></div>
+      <div class="pg" id="pg-users"></div>
+    </section>
+  </div>
 
-  <section>
-    <h2>Lượt truy cập theo ngày
-      <span class="legend"><span><i class="dot" style="background:var(--en)"></i>en</span><span><i class="dot" style="background:var(--nihongo)"></i>nihongo</span></span>
-    </h2>
-    <div class="chart" id="chart"></div>
-  </section>
-
-  <section>
-    <h2>Theo người dùng <small id="usersNote"></small></h2>
-    <div class="tw"><table>
-      <thead><tr><th>Username</th><th>Site</th><th>Số lượt</th><th>Lần đầu (trong khoảng)</th><th>Lần gần nhất</th></tr></thead>
-      <tbody id="users"></tbody>
-    </table></div>
-  </section>
-
-  <section>
-    <h2>Reset mã PIN · en.duyetnt.com <small id="pinNote"></small></h2>
-    <div class="pinbar">
-      <input type="search" id="pinq" placeholder="Tìm tên bé…" aria-label="Tìm tên bé">
-      <button class="reset" id="pinreload" style="border-color:var(--line);color:var(--text)">↻</button>
+  <!-- ================= HÀNH VI ================= -->
+  <div class="tab" id="tab-behavior" hidden>
+    <div class="cards" id="bcards"></div>
+    <section>
+      <h2>Gợi ý từ dữ liệu</h2>
+      <p class="sub">Tự rút ra từ số liệu trong khoảng ngày đang chọn, để cân nhắc nên phát triển phần nào.</p>
+      <ul class="insights" id="insights"></ul>
+    </section>
+    <div class="cols">
+      <section>
+        <h2>Bé dành thời gian ở đâu
+          <span class="legend"><span><i class="dot" style="background:var(--learn)"></i>Học</span><span><i class="dot" style="background:var(--game)"></i>Trò chơi</span><span><i class="dot" style="background:var(--other)"></i>Khác</span></span></h2>
+        <p class="sub">Tổng số phút ở từng phần · số lần mở · số bé</p>
+        <div class="hbars" id="areas"></div>
+      </section>
+      <section>
+        <h2>Học và chơi theo ngày
+          <span class="legend"><span><i class="dot" style="background:var(--learn)"></i>Học</span><span><i class="dot" style="background:var(--game)"></i>Trò chơi</span></span></h2>
+        <p class="sub">Số phút mỗi ngày (không tính trang chủ, bảng vinh danh)</p>
+        <div class="tw" id="bdaily"></div>
+      </section>
     </div>
-    <div class="ok" id="pinok"></div>
-    <div class="err" id="pinerr"></div>
-    <div class="tw pinlist"><table>
-      <thead><tr><th>Tên</th><th>Mã PIN</th><th>Số cấp đã qua</th><th>Cập nhật</th><th></th></tr></thead>
-      <tbody id="pinusers"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody>
-    </table></div>
-  </section>
+    <section>
+      <h2>Hoạt động: bắt đầu → làm xong</h2>
+      <p class="sub">Tỉ lệ làm xong thấp nghĩa là bé hay bỏ dở giữa chừng: có thể quá dài, quá khó hoặc chưa đủ hấp dẫn.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Hoạt động</th><th class="r">Bắt đầu</th><th class="r">Làm xong</th><th>Tỉ lệ làm xong</th><th class="r">Số bé</th><th class="r">Điểm TB</th><th class="r">Qua bài</th></tr></thead>
+        <tbody id="acts"></tbody>
+      </table></div>
+    </section>
+    <div class="cols">
+      <section>
+        <h2>Các bài học <small>sắp theo thời gian</small></h2>
+        <div class="tw"><table>
+          <thead><tr><th>Bài</th><th>Thời gian</th><th class="r">Số bé</th><th class="r">Luyện tập</th><th class="r">Kiểm tra</th><th class="r">Qua</th></tr></thead>
+          <tbody id="lessons"></tbody>
+        </table></div>
+      </section>
+      <section>
+        <h2>Trò Đi tìm kho báu <small>theo đảo</small></h2>
+        <div class="tw"><table>
+          <thead><tr><th>Đảo</th><th class="r">Lên đảo</th><th class="r">Qua đảo</th><th>Tỉ lệ qua</th><th class="r">Sai TB / lượt</th></tr></thead>
+          <tbody id="islands"></tbody>
+        </table></div>
+      </section>
+    </div>
+    <section style="margin-top:16px">
+      <h2>Giờ học trong ngày</h2>
+      <p class="sub">Tổng số phút theo giờ (giờ Việt Nam), để biết bé thường học lúc nào</p>
+      <div class="tw" id="bhours"></div>
+    </section>
+    <section>
+      <h2>Từng bé <small id="bkidsNote"></small></h2>
+      <div class="tw"><table>
+        <thead><tr><th>Tên</th><th class="r">Tổng</th><th>Học / Chơi</th><th>Thích nhất</th><th class="r">Số ngày</th><th class="r">Kiểm tra qua</th><th>Lần cuối</th></tr></thead>
+        <tbody id="bkids"></tbody>
+      </table></div>
+      <div class="pg" id="pg-bkids"></div>
+    </section>
+  </div>
 
-  <section>
-    <h2>Chi tiết từng lượt truy cập <small id="visitsNote"></small></h2>
-    <div class="tw"><table>
-      <thead><tr><th>Username</th><th>Site</th><th>Ngày</th><th>Giờ vào</th><th>Hoạt động đến</th><th>Thời lượng</th><th>Cách vào</th><th>Thiết bị</th><th>IP</th></tr></thead>
-      <tbody id="visits"></tbody>
-    </table></div>
-  </section>
+  <!-- ================= LƯỢT TRUY CẬP ================= -->
+  <div class="tab" id="tab-visits" hidden>
+    <section>
+      <h2>Chi tiết từng lượt truy cập <small id="visitsNote"></small></h2>
+      <div class="tw"><table>
+        <thead><tr><th>Username</th><th>Site</th><th>Ngày</th><th>Giờ vào</th><th>Hoạt động đến</th><th>Thời lượng</th><th>Cách vào</th><th>Thiết bị</th><th>IP</th></tr></thead>
+        <tbody id="visits"></tbody>
+      </table></div>
+      <div class="pg" id="pg-visits"></div>
+    </section>
+  </div>
+
+  <!-- ================= HỒ SƠ & PIN ================= -->
+  <div class="tab" id="tab-pins" hidden>
+    <section>
+      <h2>Reset mã PIN · en.duyetnt.com <small id="pinNote"></small></h2>
+      <div class="pinbar">
+        <input type="search" id="pinq" placeholder="Tìm tên bé…" aria-label="Tìm tên bé">
+        <button class="reset" id="pinreload" style="border-color:var(--line);color:var(--text)">↻</button>
+      </div>
+      <div class="ok" id="pinok"></div>
+      <div class="err" id="pinerr"></div>
+      <div class="tw"><table>
+        <thead><tr><th>Tên</th><th>Mã PIN</th><th class="r">Số cấp đã qua</th><th>Cập nhật</th><th></th></tr></thead>
+        <tbody id="pinusers"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody>
+      </table></div>
+      <div class="pg" id="pg-pins"></div>
+    </section>
+  </div>
 </main>
+<div class="tip" id="tip"></div>
 <script>
 const $ = id => document.getElementById(id);
 const TZ = 'Asia/Ho_Chi_Minh';
 const KIND = {open:'Mở trang', login:'Đăng nhập', register:'Đăng ký mới', save:'Đang học'};
-const SITE = {en:'en', nihongo:'nihongo'};
+// Tên hiển thị cho dữ liệu hành vi en.duyetnt.com. Khi thêm bài / đảo / khu vực mới ở en-learn thì bổ sung ở đây.
+const AREA = {'lesson.vocab':'Từ vựng','lesson.dialog':'Hội thoại','lesson.grammar':'Ngữ pháp','lesson.practice':'Luyện tập',
+  'lesson.test':'Bài kiểm tra','castle':'Giải cứu công chúa','treasure':'Kho báu · bản đồ','island':'Kho báu · trên đảo',
+  'chest':'Kho báu · mở rương','home':'Trang chủ','fame':'Bảng vinh danh'};
+const ACT = {practice:'Luyện tập', test:'Bài kiểm tra', castle:'Giải cứu công chúa', island:'Đảo kho báu', chest:'Mở rương kho báu'};
+const LESSONS = ['Animals','Colors','Numbers','Family','Food','School','My Body','Toys','Clothes','Weather','Feelings','Actions'];
+const ISLANDS = {kind:'Tốt Bụng', honest:'Trung Thực', brave:'Dũng Cảm', polite:'Lễ Phép', grateful:'Biết Ơn', responsible:'Trách Nhiệm', persevere:'Kiên Trì'};
+const catOf = a => a.startsWith('lesson.') ? 'learn' : ['castle','treasure','island','chest'].includes(a) ? 'game' : 'other';
+const CAT = {learn:'Học', game:'Trò chơi', other:'Khác'};
+
 const fmtD = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
 const fmtT = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
 const fmtDT = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
 const isoVN = d => new Intl.DateTimeFormat('en-CA', {timeZone:TZ}).format(d);   // YYYY-MM-DD theo giờ VN
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const siteTag = s => `<span class="site ${s}">${SITE[s] || esc(s)}</span>`;
-
+const siteTag = s => `<span class="site ${s}">${esc(s)}</span>`;
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const mins = s => Math.round((s || 0) / 60);
+function dur(s){
+  if(s < 60) return '< 1 phút';
+  const m = Math.round(s/60); return m < 60 ? `${m} phút` : `${Math.floor(m/60)} giờ ${m%60} phút`;
+}
+const durShort = s => { const m = mins(s); return m < 60 ? `${m} ph` : `${Math.floor(m/60)}g ${m%60}ph`; };
 function device(ua){
   if(!ua) return '—';
   const os = /iPad/.test(ua)?'iPad': /iPhone/.test(ua)?'iPhone': /Android/.test(ua)?'Android': /Windows/.test(ua)?'Windows':
@@ -148,10 +278,91 @@ function device(ua){
              /FxiOS|Firefox\//.test(ua)?'Firefox': /Safari\//.test(ua)?'Safari':'';
   return br ? `${os} · ${br}` : os;
 }
-function dur(s){
-  if(s < 60) return '< 1 phút';
-  const m = Math.round(s/60); return m < 60 ? `${m} phút` : `${Math.floor(m/60)} giờ ${m%60} phút`;
+const meter = (p, color) => `<span class="meter"><span><i style="width:${Math.min(100, p)}%;${color ? 'background:' + color : ''}"></i></span>${p}%</span>`;
+
+/* ---------- tooltip dùng chung cho biểu đồ ---------- */
+const tip = $('tip');
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest && e.target.closest('[data-tip]');
+  if(!t){ tip.style.display = 'none'; return; }
+  tip.innerHTML = t.dataset.tip; tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth - w - 8, e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY - h - 12 < 8 ? e.clientY + 16 : e.clientY - h - 12) + 'px';
+});
+
+/* ---------- biểu đồ cột chồng (SVG) ----------
+   cols: [{label, parts:[số...], tip}], colors: màu mỗi phần, tick: hàm định dạng trục */
+function stackChart(cols, colors, fmt = v => v){
+  const W = 900, H = 200, L = 40, B = 22, T = 10, n = cols.length || 1;
+  const max = Math.max(1, ...cols.map(c => c.parts.reduce((a, b) => a + b, 0)));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); for(const m of [1, 2, 2.5, 5, 10]) if(m * p >= max) return m * p; })();
+  const y = v => T + (H - T - B) * (1 - v / nice), bw = (W - L) / n, gap = Math.min(6, bw * 0.25);
+  const step = n > 45 ? 7 : n > 20 ? 3 : n > 12 ? 2 : 1;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`;
+  for(let k = 0; k <= 4; k++){ const v = nice * k / 4, yy = y(v);
+    s += `<line class="gl" x1="${L}" x2="${W}" y1="${yy}" y2="${yy}"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end">${fmt(v)}</text>`; }
+  cols.forEach((c, i) => {
+    const x = L + i * bw + gap / 2, w = Math.max(1, bw - gap);
+    let acc = 0;
+    c.parts.forEach((v, j) => { if(!v) return;
+      const y0 = y(acc), y1 = y(acc + v); acc += v;
+      const top = c.parts.slice(j + 1).every(z => !z), r = top ? Math.min(4, w / 2, y0 - y1) : 0, hgt = y0 - y1 - (j ? 1 : 0);
+      s += top ? `<path d="M${x},${y0} V${y1 + r} Q${x},${y1} ${x + r},${y1} H${x + w - r} Q${x + w},${y1} ${x + w},${y1 + r} V${y0} Z" fill="${colors[j]}"/>`
+               : `<rect x="${x}" y="${y1}" width="${w}" height="${Math.max(0, hgt)}" fill="${colors[j]}"/>`; });
+    if(i % step === 0) s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${esc(c.label)}</text>`;
+    s += `<rect class="hit" x="${L + i * bw}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(c.tip)}"/>`;
+  });
+  return s + `<line x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/></svg>`;
 }
+function dayList(from, to){
+  const out = [];
+  for(let t = new Date(from + 'T12:00:00+07:00'); isoVN(t) <= to; t = new Date(+t + 86400e3)) out.push(isoVN(t));
+  return out;
+}
+const dm = k => k.slice(8) + '/' + k.slice(5, 7);
+
+/* ---------- phân trang ---------- */
+const PG = {};
+function paged(key, rows, render, tbody, cols, empty, size){
+  const st = PG[key] ||= {page:1, size:size || 25};
+  st.rows = rows; st.render = render; st.tbody = tbody; st.cols = cols; st.empty = empty;
+  const pages = Math.max(1, Math.ceil(rows.length / st.size));
+  st.page = Math.min(st.page, pages);
+  drawPage(key);
+}
+function drawPage(key){
+  const st = PG[key], pages = Math.max(1, Math.ceil(st.rows.length / st.size)), a = (st.page - 1) * st.size;
+  $(st.tbody).innerHTML = st.rows.length ? st.rows.slice(a, a + st.size).map(st.render).join('')
+    : `<tr><td colspan="${st.cols}" class="empty">${st.empty}</td></tr>`;
+  const nums = [];
+  for(let p = 1; p <= pages; p++) if(p === 1 || p === pages || Math.abs(p - st.page) <= 1) nums.push(p);
+  const btns = []; nums.forEach((p, i) => { if(i && p - nums[i - 1] > 1) btns.push('<span class="muted">…</span>');
+    btns.push(`<button data-pg="${key}" data-p="${p}" class="${p === st.page ? 'on' : ''}">${p}</button>`); });
+  $('pg-' + key).innerHTML = st.rows.length ? `
+    <span>${a + 1}–${Math.min(a + st.size, st.rows.length)} / ${st.rows.length}</span>
+    <span class="pb"><button data-pg="${key}" data-p="${st.page - 1}" ${st.page <= 1 ? 'disabled' : ''} aria-label="Trang trước">‹</button>${btns.join('')}
+      <button data-pg="${key}" data-p="${st.page + 1}" ${st.page >= pages ? 'disabled' : ''} aria-label="Trang sau">›</button></span>
+    <label>Mỗi trang <select data-pgsize="${key}">${[10, 25, 50, 100].map(n => `<option ${n === st.size ? 'selected' : ''}>${n}</option>`).join('')}</select></label>` : '';
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if(!b || b.disabled) return;
+  PG[b.dataset.pg].page = +b.dataset.p; drawPage(b.dataset.pg); });
+document.addEventListener('change', e => { const s = e.target.closest('[data-pgsize]'); if(!s) return;
+  const st = PG[s.dataset.pgsize]; st.size = +s.value; st.page = 1; drawPage(s.dataset.pgsize); });
+
+/* ---------- tab ---------- */
+const TABS = ['overview', 'behavior', 'visits', 'pins'];
+let tab = 'overview';
+function showTab(){
+  tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
+  TABS.forEach(t => { $('tab-' + t).hidden = t !== tab; });
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
+  $('filters').style.display = tab === 'pins' ? 'none' : '';
+  $('site').style.display = tab === 'behavior' ? 'none' : '';
+  if(tab === 'pins' && !enUsers) loadPins();
+  load();
+}
+addEventListener('hashchange', showTab);
 
 function setRange(days){
   const now = new Date();
@@ -159,24 +370,24 @@ function setRange(days){
   $('from').value = isoVN(new Date(now - days*86400e3));
   document.querySelectorAll('[data-r]').forEach(b => b.classList.toggle('on', +b.dataset.r === days));
 }
+function showErr(m){ $('err').textContent = m; $('err').style.display = m ? 'block' : 'none'; }
 
-let timer;
 async function load(){
-  const q = new URLSearchParams({from:$('from').value, to:$('to').value, site:$('site').value, user:$('user').value.trim()});
+  if(tab === 'pins') return;
+  const q = new URLSearchParams({from:$('from').value, to:$('to').value, user:$('user').value.trim()});
+  if(tab !== 'behavior') q.set('site', $('site').value);
   try{
-    const r = await fetch('api/visits?' + q, {cache:'no-store'});
+    const r = await fetch((tab === 'behavior' ? 'api/behavior?' : 'api/visits?') + q, {cache:'no-store'});
     if(!r.ok) throw new Error('Máy chủ trả về mã ' + r.status);
     const d = await r.json();
-    render(d);
-    $('err').style.display = 'none';
+    tab === 'behavior' ? renderBehavior(d) : renderVisits(d);
+    showErr('');
     $('upd').textContent = 'Cập nhật lúc ' + fmtT.format(new Date());
-  }catch(e){
-    $('err').textContent = 'Không tải được dữ liệu: ' + e.message;
-    $('err').style.display = 'block';
-  }
+  }catch(e){ showErr('Không tải được dữ liệu: ' + e.message); }
 }
 
-function render(d){
+/* ================= Tổng quan + Lượt truy cập ================= */
+function renderVisits(d){
   const v = d.visits;
   const by = s => v.filter(x => x.site === s);
   const uniq = arr => new Set(arr.map(x => x.site + ':' + x.user.toLowerCase())).size;
@@ -189,76 +400,162 @@ function render(d){
     ['Người dùng', uniq(v), `en ${uniq(by('en'))} · nihongo ${uniq(by('nihongo'))}`],
     ['Hôm nay', vt.length, `${uniq(vt)} người dùng`],
     ['Đăng ký mới', reg, 'trong khoảng đã chọn'],
-    ['Thời gian học (ước tính)', dur(totalSec).replace('< 1 phút','0 phút'), v.length ? `TB ${dur(totalSec / v.length)} / lượt` : ''],
+    ['Thời gian (ước tính)', dur(totalSec).replace('< 1 phút','0 phút'), v.length ? `TB ${dur(totalSec / v.length)} / lượt` : ''],
   ].map(([k,val,s]) => `<div class="card"><div class="k">${k}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
 
-  // biểu đồ theo ngày
-  const days = [];
-  for(let t = new Date($('from').value + 'T12:00:00+07:00'); isoVN(t) <= d.to; t = new Date(+t + 86400e3)) days.push(isoVN(t));
   const cnt = {}; v.forEach(x => { const k = isoVN(new Date(x.start*1000)); (cnt[k] ||= {en:0, nihongo:0})[x.site]++; });
-  const max = Math.max(1, ...days.map(k => (cnt[k]?.en||0) + (cnt[k]?.nihongo||0)));
-  const step = days.length > 45 ? 7 : days.length > 16 ? 3 : 1;
-  $('chart').innerHTML = days.map((k,i) => {
-    const c = cnt[k] || {en:0, nihongo:0}, tot = c.en + c.nihongo, h = tot / max * 100;
-    return `<div class="col" title="${k}: en ${c.en}, nihongo ${c.nihongo}">
-      <span class="n">${tot || ''}</span>
-      <div class="bar" style="height:${Math.max(h, 1)}%">${tot ? `<i style="flex:${c.en};background:var(--en)"></i><i style="flex:${c.nihongo};background:var(--nihongo)"></i>` : ''}</div>
-      <span class="lbl">${i % step === 0 ? k.slice(8) + '/' + k.slice(5,7) : '&nbsp;'}</span></div>`;
-  }).join('');
+  $('chart').innerHTML = stackChart(dayList($('from').value, d.to).map(k => { const c = cnt[k] || {en:0, nihongo:0};
+    return {label:dm(k), parts:[c.en, c.nihongo], tip:`<b>${dm(k)}</b><br>en: ${c.en} lượt<br>nihongo: ${c.nihongo} lượt`}; }),
+    ['var(--en)', 'var(--nihongo)'], v => Number.isInteger(v) ? v : '');
 
-  // theo người dùng
   const um = {};
   v.forEach(x => { const k = x.site + ':' + x.user.toLowerCase();
-    const u = um[k] ||= {user:x.user, site:x.site, n:0, first:x.start, last:x.last};
-    u.n++; u.first = Math.min(u.first, x.start); u.last = Math.max(u.last, x.last); });
+    const u = um[k] ||= {user:x.user, site:x.site, n:0, sec:0, first:x.start, last:x.last};
+    u.n++; u.sec += x.last - x.start; u.first = Math.min(u.first, x.start); u.last = Math.max(u.last, x.last); });
   const users = Object.values(um).sort((a,b) => b.last - a.last);
   $('usersNote').textContent = users.length ? `${users.length} người` : '';
-  $('users').innerHTML = users.length ? users.map(u => `<tr>
-      <td class="u"><a class="lnk" data-user="${esc(u.user)}">${esc(u.user)}</a></td><td>${siteTag(u.site)}</td><td>${u.n}</td>
-      <td>${fmtDT.format(new Date(u.first*1000))}</td><td>${fmtDT.format(new Date(u.last*1000))}</td></tr>`).join('')
-    : '<tr><td colspan="5" class="empty">Chưa có lượt truy cập nào trong khoảng này</td></tr>';
+  paged('users', users, u => `<tr>
+      <td class="u"><a class="lnk" data-user="${esc(u.user)}">${esc(u.user)}</a></td><td>${siteTag(u.site)}</td><td class="r">${u.n}</td>
+      <td class="r">${dur(u.sec)}</td><td>${fmtDT.format(new Date(u.first*1000))}</td><td>${fmtDT.format(new Date(u.last*1000))}</td></tr>`,
+    'users', 6, 'Chưa có lượt truy cập nào trong khoảng này', 10);
 
-  // chi tiết
   $('visitsNote').textContent = v.length ? `${v.length} lượt${d.truncated ? ' (chỉ hiện 5000 lượt mới nhất)' : ''} · giờ Việt Nam` : '';
-  $('visits').innerHTML = v.length ? v.map(x => { const s = new Date(x.start*1000), l = new Date(x.last*1000); return `<tr>
+  paged('visits', v, x => { const s = new Date(x.start*1000), l = new Date(x.last*1000); return `<tr>
       <td class="u"><a class="lnk" data-user="${esc(x.user)}">${esc(x.user)}</a></td><td>${siteTag(x.site)}</td>
       <td>${fmtD.format(s)}</td><td>${fmtT.format(s)}</td><td>${x.last > x.start ? fmtT.format(l) : '<span class="muted">—</span>'}</td>
       <td>${dur(x.last - x.start)}</td><td><span class="chip">${KIND[x.kind] || esc(x.kind)}</span></td>
-      <td title="${esc(x.ua)}">${esc(device(x.ua))}</td><td class="muted">${esc(x.ip || '—')}</td></tr>`; }).join('')
-    : '<tr><td colspan="9" class="empty">Chưa có lượt truy cập nào trong khoảng này</td></tr>';
+      <td title="${esc(x.ua)}">${esc(device(x.ua))}</td><td class="muted">${esc(x.ip || '—')}</td></tr>`; },
+    'visits', 9, 'Chưa có lượt truy cập nào trong khoảng này');
 }
 
+/* ================= Hành vi học sinh (en) ================= */
+function renderBehavior(d){
+  const areas = d.areas.map(a => Object.assign(a, {cat:catOf(a.area)})).sort((a, b) => b.sec - a.sec);
+  const sum = c => areas.filter(a => a.cat === c).reduce((s, a) => s + a.sec, 0);
+  const learn = sum('learn'), game = sum('game'), focus = learn + game;
+  const act = k => d.acts.find(a => a.act === k) || {starts:0, dones:0, users:0, avg:null, passed:0};
+  const test = act('test'), kids = d.users.length;
+  $('bcards').innerHTML = [
+    ['Thời gian học', dur(learn).replace('< 1 phút','0 phút'), 'từ vựng, hội thoại, ngữ pháp, luyện tập, kiểm tra'],
+    ['Thời gian chơi game', dur(game).replace('< 1 phút','0 phút'), 'Giải cứu công chúa, Đi tìm kho báu'],
+    ['Học : Chơi', focus ? `${pct(learn, focus)} : ${100 - pct(learn, focus)}` : '—', 'phần trăm thời gian'],
+    ['Số bé hoạt động', kids, d.daily.length ? `TB ${durShort(d.daily.reduce((a, x) => a + x.all, 0) / Math.max(1, kids))} / bé` : ''],
+    ['Bài kiểm tra qua', test.dones ? `${pct(test.passed, test.dones)}%` : '—', `${test.passed}/${test.dones} lần làm xong`],
+  ].map(([k,val,s]) => `<div class="card"><div class="k">${k}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
+
+  if(!areas.length){
+    const none = `<p class="empty">Chưa có dữ liệu hành vi trong khoảng này. Dữ liệu được ghi từ khi bản cập nhật có thống kê của en.duyetnt.com được deploy.</p>`;
+    ['areas', 'bdaily', 'bhours'].forEach(id => $(id).innerHTML = none);
+    $('insights').innerHTML = '<li><span>ℹ️</span><span>Chưa có dữ liệu để rút ra gợi ý.</span></li>';
+  }else{
+    const max = areas[0].sec || 1;
+    $('areas').innerHTML = areas.map(a => `<div class="hb" data-tip="<b>${esc(AREA[a.area] || a.area)}</b> · ${CAT[a.cat]}<br>${dur(a.sec)} · ${a.views} lần mở · ${a.users} bé">
+      <span class="nm">${esc(AREA[a.area] || a.area)}</span>
+      <span class="tr"><i style="width:${Math.max(1, a.sec / max * 100)}%;background:var(--${a.cat})"></i></span>
+      <span class="vv"><b>${durShort(a.sec)}</b><span> · ${a.views} lần · ${a.users} bé</span></span></div>`).join('');
+    const dd = Object.fromEntries(d.daily.map(x => [x.day, x]));
+    $('bdaily').innerHTML = stackChart(dayList(d.from, d.to).map(k => { const x = dd[k] || {learn:0, game:0, users:0};
+      return {label:dm(k), parts:[mins(x.learn), mins(x.game)], tip:`<b>${dm(k)}</b> · ${x.users || 0} bé<br>Học: ${dur(x.learn)}<br>Trò chơi: ${dur(x.game)}`}; }),
+      ['var(--learn)', 'var(--game)'], v => Number.isInteger(v) ? v + 'ph' : '');
+    const hh = Object.fromEntries(d.hours.map(x => [x.h, x.sec]));
+    $('bhours').innerHTML = stackChart(Array.from({length:24}, (_, h) => ({label:h + 'h', parts:[mins(hh[h])],
+      tip:`<b>${h}:00–${h}:59</b><br>${dur(hh[h] || 0)}`})), ['var(--learn)'], v => Number.isInteger(v) ? v + 'ph' : '');
+    $('insights').innerHTML = insights(d, areas, learn, game).map(([i, t]) => `<li><span>${i}</span><span>${t}</span></li>`).join('');
+  }
+
+  const order = ['practice', 'test', 'castle', 'island'];
+  const acts = [...d.acts].filter(a => a.act !== 'chest').sort((a, b) => order.indexOf(a.act) - order.indexOf(b.act));
+  $('acts').innerHTML = acts.length ? acts.map(a => `<tr><td class="u">${esc(ACT[a.act] || a.act)}</td><td class="r">${a.starts}</td><td class="r">${a.dones}</td>
+      <td>${a.starts ? meter(pct(a.dones, a.starts), pct(a.dones, a.starts) < 50 ? 'var(--game)' : '') : '<span class="muted">—</span>'}</td><td class="r">${a.users}</td>
+      <td class="r">${a.avg != null ? a.avg + '%' : '—'}</td><td class="r">${a.act === 'test' && a.dones ? `${a.passed}/${a.dones}` : '—'}</td></tr>`).join('')
+    : '<tr><td colspan="7" class="empty">Chưa có hoạt động nào</td></tr>';
+
+  const lmax = Math.max(1, ...d.lessons.map(l => l.sec));
+  const ls = LESSONS.map((t, i) => d.lessons.find(l => l.lesson === i) || {lesson:i, sec:0, users:0, tests:0, passed:0, practices:0})
+    .concat(d.lessons.filter(l => l.lesson >= LESSONS.length)).sort((a, b) => b.sec - a.sec);
+  $('lessons').innerHTML = ls.map(l => `<tr><td class="u">Bài ${l.lesson + 1} · ${esc(LESSONS[l.lesson] || '?')}</td>
+      <td><span class="meter"><span><i style="width:${l.sec / lmax * 100}%"></i></span>${durShort(l.sec)}</span></td>
+      <td class="r">${l.users || '—'}</td><td class="r">${l.practices || '—'}</td><td class="r">${l.tests || '—'}</td>
+      <td class="r">${l.tests ? `${pct(l.passed, l.tests)}%` : '—'}</td></tr>`).join('');
+
+  const isl = Object.keys(ISLANDS).map(x => d.islands.find(i => i.x === x) || {x, starts:0, dones:0, wrong:null});
+  $('islands').innerHTML = isl.map(i => `<tr><td class="u">${esc(ISLANDS[i.x] || i.x)}</td><td class="r">${i.starts || '—'}</td><td class="r">${i.dones || '—'}</td>
+      <td>${i.starts ? meter(pct(i.dones, i.starts), pct(i.dones, i.starts) < 50 ? 'var(--game)' : '') : '<span class="muted">—</span>'}</td>
+      <td class="r">${i.wrong != null ? i.wrong : '—'}</td></tr>`).join('');
+
+  $('bkidsNote').textContent = kids ? `${kids} bé` : '';
+  paged('bkids', d.users, u => `<tr><td class="u"><a class="lnk" data-user="${esc(u.user)}">${esc(u.user)}</a></td>
+      <td class="r">${dur(u.sec)}</td>
+      <td>${u.learn + u.game ? `<span class="chip learn">Học ${pct(u.learn, u.learn + u.game)}%</span> <span class="chip game">Chơi ${100 - pct(u.learn, u.learn + u.game)}%</span>` : '<span class="muted">—</span>'}</td>
+      <td>${u.fav ? `<span class="chip ${catOf(u.fav)}">${esc(AREA[u.fav] || u.fav)}</span>` : '<span class="muted">—</span>'}</td>
+      <td class="r">${u.days}</td><td class="r">${u.tests ? `${u.passed}/${u.tests}` : '—'}</td><td>${fmtDT.format(new Date(u.last*1000))}</td></tr>`,
+    'bkids', 7, 'Chưa có bé nào hoạt động trong khoảng này', 10);
+}
+
+// Gợi ý ngắn rút ra từ số liệu (chỉ nêu khi đủ dữ liệu để đáng tin)
+function insights(d, areas, learn, game){
+  const out = [], focus = learn + game;
+  if(focus) out.push(['⚖️', `Trong khoảng này, bé dành <b>${pct(learn, focus)}%</b> thời gian để học và <b>${pct(game, focus)}%</b> để chơi game.` +
+    (pct(game, focus) > 60 ? ' Trò chơi đang hút bé hơn bài học: có thể đưa thêm nội dung bài học vào trò chơi, hoặc thêm phần thưởng khi học.' : '')]);
+  const top = areas.find(a => a.cat !== 'other');
+  if(top) out.push(['⭐', `Phần được dùng nhiều nhất: <b>${esc(AREA[top.area] || top.area)}</b> (${dur(top.sec)}, ${top.users} bé).`]);
+  const learnAreas = areas.filter(a => a.cat === 'learn');
+  if(learnAreas.length >= 3){ const low = learnAreas[learnAreas.length - 1];
+    out.push(['🔍', `Trong các phần học, <b>${esc(AREA[low.area])}</b> ít được mở nhất (${dur(low.sec)}). Có thể cần làm phần này hấp dẫn hơn.`]); }
+  const drop = d.acts.filter(a => a.starts >= 3 && a.act !== 'chest').map(a => Object.assign({}, a, {p:pct(a.dones, a.starts)})).sort((a, b) => a.p - b.p)[0];
+  if(drop && drop.p < 70) out.push(['🚪', `<b>${esc(ACT[drop.act] || drop.act)}</b> bị bỏ dở nhiều nhất: chỉ ${drop.p}% số lần bắt đầu được làm xong. Có thể rút ngắn hoặc giảm độ khó.`]);
+  const tests = d.lessons.filter(l => l.tests >= 3).map(l => Object.assign({}, l, {p:pct(l.passed, l.tests)})).sort((a, b) => a.p - b.p)[0];
+  if(tests && tests.p < 60) out.push(['📉', `Bài kiểm tra <b>Bài ${tests.lesson + 1} · ${esc(LESSONS[tests.lesson] || '')}</b> có tỉ lệ qua thấp nhất (${tests.p}%). Có thể cần thêm phần luyện tập cho bài này.`]);
+  const peak = [...d.hours].sort((a, b) => b.sec - a.sec)[0];
+  if(peak) out.push(['🕘', `Bé học nhiều nhất vào khoảng <b>${peak.h}:00–${peak.h}:59</b>. Đây là giờ hợp lý để gửi nhắc nhở hoặc ra nội dung mới.`]);
+  return out;
+}
+
+/* ================= bộ lọc ================= */
 document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { setRange(+b.dataset.r); load(); });
 ['from','to'].forEach(id => $(id).onchange = () => { document.querySelectorAll('[data-r]').forEach(b => b.classList.remove('on')); load(); });
 $('site').onchange = load;
 let deb; $('user').oninput = () => { clearTimeout(deb); deb = setTimeout(load, 300); };
-$('reload').onclick = load;
+$('reload').onclick = () => { load(); if(tab === 'pins') loadPins(); };
 document.addEventListener('click', e => { const a = e.target.closest('[data-user]'); if(a){ $('user').value = a.dataset.user; load(); window.scrollTo({top:0, behavior:'smooth'}); } });
-// ---------- reset mã PIN (en.duyetnt.com) ----------
-let enUsers = [];
+
+/* ================= reset mã PIN (en.duyetnt.com) ================= */
+let enUsers = null;
 async function loadPins(){
   try{
     const r = await fetch('api/en/users', {cache:'no-store'});
     const d = await r.json().catch(() => ({}));
     if(!r.ok) throw new Error(d.error || 'mã ' + r.status);
     enUsers = d.users; renderPins(); $('pinerr').style.display = 'none';
-  }catch(e){ $('pinerr').textContent = 'Không tải được danh sách hồ sơ: ' + e.message; $('pinerr').style.display = 'block'; }
+  }catch(e){ enUsers = enUsers || []; $('pinerr').textContent = 'Không tải được danh sách hồ sơ: ' + e.message; $('pinerr').style.display = 'block';
+    renderPins(); }
 }
 function renderPins(){
+  if(!enUsers) return;
   const q = $('pinq').value.trim().toLowerCase();
   const list = enUsers.filter(u => u.name.toLowerCase().includes(q));
   $('pinNote').textContent = `${enUsers.length} hồ sơ`;
-  $('pinusers').innerHTML = list.length ? list.map(u => `<tr>
+  paged('pins', list, u => `<tr>
       <td class="u">${esc(u.name)}</td>
       <td>${u.locked ? '<span class="chip" style="color:var(--nihongo)">Đang khoá (sai PIN)</span>' : u.hasPin ? '<span class="chip">Có PIN</span>' : '<span class="muted">Chưa có – bé sẽ tự đặt</span>'}</td>
-      <td>${u.levels}</td><td>${fmtDT.format(new Date(u.updated*1000))}</td>
-      <td>${u.hasPin || u.locked ? `<button class="reset" data-reset="${esc(u.name)}">Reset PIN</button>` : ''}</td></tr>`).join('')
-    : `<tr><td colspan="5" class="empty">${enUsers.length ? 'Không có tên nào khớp' : 'Chưa có hồ sơ nào'}</td></tr>`;
+      <td class="r">${u.levels}</td><td>${fmtDT.format(new Date(u.updated*1000))}</td>
+      <td>${u.hasPin || u.locked ? `<button class="reset" data-reset="${esc(u.name)}">Reset PIN</button>` : ''}</td></tr>`,
+    'pinusers', 5, enUsers.length ? 'Không có tên nào khớp' : 'Chưa có hồ sơ nào');
+}
+function ask(html){
+  return new Promise(res => {
+    const m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = `<div class="box" role="dialog" aria-modal="true">${html}<div class="row"><button id="mno">Huỷ</button><button class="danger" id="myes">Reset PIN</button></div></div>`;
+    document.body.appendChild(m);
+    const done = v => { m.remove(); res(v); };
+    m.querySelector('#mno').onclick = () => done(false); m.querySelector('#myes').onclick = () => done(true);
+    m.onclick = e => { if(e.target === m) done(false); }; m.querySelector('#myes').focus();
+  });
 }
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-reset]'); if(!b) return;
   const name = b.dataset.reset;
-  if(!confirm(`Reset mã PIN của "${name}"?\n\nBé sẽ bị đăng xuất trên mọi thiết bị. Lần vào sau, bé nhập tên rồi tự đặt PIN mới. Tiến độ học giữ nguyên.`)) return;
+  if(!await ask(`<b>Reset mã PIN của "${esc(name)}"?</b><span class="muted">Bé sẽ bị đăng xuất trên mọi thiết bị. Lần vào sau, bé nhập tên rồi tự đặt PIN mới. Tiến độ học giữ nguyên.</span>`)) return;
   b.disabled = true; $('pinok').style.display = $('pinerr').style.display = 'none';
   try{
     const r = await fetch('api/en/reset-pin', {method:'POST', headers:{'Content-Type':'application/json', 'X-Admin':'1'}, body:JSON.stringify({name})});
@@ -269,12 +566,11 @@ document.addEventListener('click', async e => {
     loadPins();
   }catch(err){ b.disabled = false; $('pinerr').textContent = 'Reset không thành công: ' + err.message; $('pinerr').style.display = 'block'; }
 });
-$('pinq').oninput = renderPins;
+$('pinq').oninput = () => { if(PG.pins) PG.pins.page = 1; renderPins(); };
 $('pinreload').onclick = loadPins;
-loadPins();
 
-setRange(6); load();
-setInterval(() => { if(!document.hidden) load(); }, 60e3);
+setRange(6); showTab();
+setInterval(() => { if(!document.hidden && tab !== 'pins') load(); }, 60e3);
 </script>
 </body>
 </html>

@@ -7,6 +7,7 @@ Tổng hợp lượt truy cập của en.duyetnt.com và nihongo.duyetnt.com (us
 - `homepage/index.html`: trang chủ tĩnh của duyetnt.com, giới thiệu en.duyetnt.com và nihongo.duyetnt.com (một file HTML, không cần build).
 - `deploy/`: systemd unit, site nginx (basic auth), `setup-server.sh`, `backfill.py` (nhập dữ liệu cũ một lần).
 - 2 API học (`en-learn/server/app.py`, `nihongo-it/server/progress-api.mjs`) gửi sự kiện khi mở trang, đăng nhập, đăng ký hoặc lưu bài. Các sự kiện cách nhau dưới 30 phút được gộp thành 1 lượt.
+- Thống kê hành vi en.duyetnt.com: trình duyệt của bé gửi `POST /api/track` (thời gian ở từng phần, bắt đầu / làm xong luyện tập, kiểm tra, trò chơi; không ghi câu trả lời), en-learn kiểm tra rồi chuyển sang `POST /events` (cổng 8096), lưu ở bảng `events`. Trang admin đọc qua `GET /api/behavior` (tab "Hành vi học sinh").
 
 ## Deploy
 

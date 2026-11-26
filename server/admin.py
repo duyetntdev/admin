@@ -8,10 +8,14 @@ Hai cổng (đều chỉ nghe trên 127.0.0.1):
 Nhận sự kiện:
   POST /ingest {site: en|nihongo, user, kind: open|login|register|save, ip?, ua?, ts?}
   Các sự kiện của cùng một người trên cùng site cách nhau < 30 phút được gộp thành 1 lượt truy cập.
+  POST /events {site, user, ip?, ua?, events: [{e: view|start|done, a: khu vực, t, d?, l?, lv?, x?, s?, n?, ok?}]}
+  Thống kê hành vi do en-learn chuyển sang (POST /api/track của en.duyetnt.com). Cũng tính là đang hoạt động.
 
 API đọc:
   GET /api/visits?from=YYYY-MM-DD&to=YYYY-MM-DD&site=&user=   (ngày theo giờ Việt Nam)
       → {visits: [{id, site, user, kind, start, last, hits, ip, ua}], truncated}
+  GET /api/behavior?from=&to=&user=   thống kê hành vi en.duyetnt.com trong khoảng ngày
+      → {areas, acts, lessons, islands, daily, hours, users}  (xem hàm behavior)
 
 Quản lý hồ sơ en.duyetnt.com (chuyển tiếp tới cổng quản trị nội bộ của en-learn, mặc định 127.0.0.1:8091):
   GET  /api/en/users                       → {users: [{name, hasPin, locked, levels, updated}]}
@@ -56,6 +60,20 @@ def open_db(path):
         ua TEXT NOT NULL DEFAULT '')''')
     d.execute('CREATE INDEX IF NOT EXISTS visits_user ON visits(site, ukey, last)')
     d.execute('CREATE INDEX IF NOT EXISTS visits_start ON visits(start)')
+    d.execute('''CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY,
+        site TEXT NOT NULL,
+        user TEXT NOT NULL,
+        ukey TEXT NOT NULL,
+        ts INTEGER NOT NULL,           -- unix time
+        ev TEXT NOT NULL,              -- view | start | done
+        area TEXT NOT NULL,            -- khu vực / hoạt động (lesson.vocab, castle, test, ...)
+        dur INTEGER,                   -- view: số giây ở màn hình
+        lesson INTEGER, level INTEGER, -- số thứ tự bài (0..), cấp
+        x TEXT,                        -- mã đảo (trò kho báu)
+        score INTEGER, total INTEGER, ok INTEGER)''')
+    d.execute('CREATE INDEX IF NOT EXISTS events_ts ON events(site, ts)')
+    d.execute('CREATE INDEX IF NOT EXISTS events_user ON events(site, ukey, ts)')
     d.commit()
     return d
 
@@ -72,6 +90,80 @@ def record(site, user, kind, ts, ip, ua):
             db.execute('INSERT INTO visits(site,user,ukey,kind,start,last,ip,ua) VALUES(?,?,?,?,?,?,?,?)',
                        (site, user, ukey, kind, ts, ts, ip, ua))
         db.commit()
+
+
+EV_TYPES = {'view', 'start', 'done'}
+AREA_RE = re.compile(r'^[a-z]{1,20}(\.[a-z]{1,20})?$')
+X_RE = re.compile(r'^[a-z]{1,20}$')
+
+
+def record_events(site, user, events, ip, ua):
+    now, rows = int(time.time()), []
+    num = lambda v, lo, hi: v if isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi else None
+    for e in events[:100]:
+        if not isinstance(e, dict) or e.get('e') not in EV_TYPES or not isinstance(e.get('a'), str) or not AREA_RE.match(e['a']):
+            continue
+        ts = num(e.get('t'), now - 7 * 86400, now + 60) or now
+        x = e.get('x') if isinstance(e.get('x'), str) and X_RE.match(e['x']) else None
+        rows.append((site, user, user.lower(), ts, e['e'], e['a'], num(e.get('d'), 1, 3600), num(e.get('l'), 0, 999),
+                     num(e.get('lv'), 1, 9), x, num(e.get('s'), 0, 999), num(e.get('n'), 1, 999), num(e.get('ok'), 0, 1)))
+    if not rows:
+        return 0
+    with db_lock:
+        db.executemany('INSERT INTO events(site,user,ukey,ts,ev,area,dur,lesson,level,x,score,total,ok) '
+                       'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)', rows)
+        db.commit()
+    record(site, user, 'save', max(r[3] for r in rows), ip, ua)     # bé đang hoạt động → kéo dài lượt truy cập
+    return len(rows)
+
+
+LEARN = "area LIKE 'lesson.%'"
+GAME = "area IN ('castle','treasure','island','chest')"
+
+
+def behavior(site, lo, hi, user):
+    """Thống kê hành vi trong [lo, hi). Thời gian tính bằng giây, ngày / giờ theo giờ Việt Nam."""
+    w, a = 'site=? AND ts>=? AND ts<?', [site, lo, hi]
+    if user:
+        w += ' AND ukey LIKE ?'; a.append('%' + user.lower().replace('%', '').replace('_', '') + '%')
+    vn = "(ts + 25200)"
+    q = lambda sql, extra=(): db.execute(sql, a + list(extra)).fetchall()
+    with db_lock:
+        areas = q(f"SELECT area, COUNT(*), COUNT(DISTINCT ukey), SUM(dur) FROM events WHERE {w} AND ev='view' GROUP BY area")
+        acts = q(f"""SELECT area, SUM(ev='start'), SUM(ev='done'), COUNT(DISTINCT CASE WHEN ev='start' THEN ukey END),
+                   AVG(CASE WHEN ev='done' AND total>0 THEN 100.0*score/total END), SUM(ev='done' AND ok=1)
+                   FROM events WHERE {w} AND ev IN ('start','done') GROUP BY area""")
+        lessons = q(f"""SELECT lesson, SUM(CASE WHEN ev='view' THEN dur ELSE 0 END), COUNT(DISTINCT ukey),
+                   SUM(ev='done' AND area='test'), SUM(ev='done' AND area='test' AND ok=1), SUM(ev='done' AND area='practice')
+                   FROM events WHERE {w} AND lesson IS NOT NULL AND (area LIKE 'lesson.%' OR area IN ('test','practice'))
+                   GROUP BY lesson""")
+        islands = q(f"""SELECT x, SUM(ev='start'), SUM(ev='done'), SUM(CASE WHEN ev='view' THEN dur ELSE 0 END),
+                   AVG(CASE WHEN ev='done' AND total>0 THEN total-score END)
+                   FROM events WHERE {w} AND area='island' AND x IS NOT NULL GROUP BY x""")
+        daily = q(f"""SELECT date({vn}, 'unixepoch'), SUM(CASE WHEN {LEARN} THEN dur ELSE 0 END),
+                   SUM(CASE WHEN {GAME} THEN dur ELSE 0 END), SUM(dur), COUNT(DISTINCT ukey)
+                   FROM events WHERE {w} AND ev='view' GROUP BY 1 ORDER BY 1""")
+        hours = q(f"SELECT CAST(strftime('%H', {vn}, 'unixepoch') AS INTEGER), SUM(dur) FROM events WHERE {w} AND ev='view' GROUP BY 1")
+        users = q(f"""SELECT MAX(user), SUM(CASE WHEN ev='view' THEN dur ELSE 0 END),
+                   SUM(CASE WHEN ev='view' AND {LEARN} THEN dur ELSE 0 END), SUM(CASE WHEN ev='view' AND {GAME} THEN dur ELSE 0 END),
+                   SUM(ev='done' AND area='test'), SUM(ev='done' AND area='test' AND ok=1), MAX(ts), COUNT(DISTINCT date({vn}, 'unixepoch'))
+                   FROM events WHERE {w} GROUP BY ukey ORDER BY 2 DESC LIMIT 1000""")
+        fav = dict(q(f"""SELECT ukey, area FROM (SELECT ukey, area, SUM(dur) s,
+                   ROW_NUMBER() OVER (PARTITION BY ukey ORDER BY SUM(dur) DESC) r
+                   FROM events WHERE {w} AND ev='view' AND area NOT IN ('home','fame') GROUP BY ukey, area) WHERE r=1"""))
+    return {
+        'areas': [{'area': r[0], 'views': r[1], 'users': r[2], 'sec': r[3] or 0} for r in areas],
+        'acts': [{'act': r[0], 'starts': r[1] or 0, 'dones': r[2] or 0, 'users': r[3] or 0,
+                  'avg': round(r[4]) if r[4] is not None else None, 'passed': r[5] or 0} for r in acts],
+        'lessons': [{'lesson': r[0], 'sec': r[1] or 0, 'users': r[2], 'tests': r[3] or 0, 'passed': r[4] or 0,
+                     'practices': r[5] or 0} for r in lessons],
+        'islands': [{'x': r[0], 'starts': r[1] or 0, 'dones': r[2] or 0, 'sec': r[3] or 0,
+                     'wrong': round(r[4], 1) if r[4] is not None else None} for r in islands],
+        'daily': [{'day': r[0], 'learn': r[1] or 0, 'game': r[2] or 0, 'all': r[3] or 0, 'users': r[4]} for r in daily],
+        'hours': [{'h': r[0], 'sec': r[1] or 0} for r in hours],
+        'users': [{'user': r[0], 'sec': r[1] or 0, 'learn': r[2] or 0, 'game': r[3] or 0, 'tests': r[4] or 0,
+                   'passed': r[5] or 0, 'last': r[6], 'days': r[7], 'fav': fav.get(r[0].lower())} for r in users],
+    }
 
 
 def day_start(s):
@@ -97,7 +189,10 @@ class Base(BaseHTTPRequestHandler):
 
 class Ingest(Base):
     def do_POST(self):
-        if urlparse(self.path).path != '/ingest':
+        path = urlparse(self.path).path
+        if path == '/events':
+            return self.events()
+        if path != '/ingest':
             return self.send_json(HTTPStatus.NOT_FOUND, {'error': 'not found'})
         try:
             n = int(self.headers.get('Content-Length') or 0)
@@ -116,6 +211,20 @@ class Ingest(Base):
         record(site, user, kind, ts, ip, ua)
         self.send_json(HTTPStatus.OK, {'ok': True})
 
+    def events(self):
+        try:
+            n = int(self.headers.get('Content-Length') or 0)
+            if n > 64 * 1024:
+                raise ValueError
+            d = json.loads(self.rfile.read(n) or b'{}')
+            site, user, evs = d.get('site'), d.get('user'), d.get('events')
+            if site not in SITES or not isinstance(user, str) or not USER_RE.match(user) or not isinstance(evs, list):
+                raise ValueError
+        except (ValueError, TypeError, AttributeError):
+            return self.send_json(HTTPStatus.BAD_REQUEST, {'error': 'bad request'})
+        k = record_events(site, user, evs, str(d.get('ip') or '')[:64], str(d.get('ua') or '')[:300])
+        self.send_json(HTTPStatus.OK, {'ok': True, 'n': k})
+
 
 class Web(Base):
     static_dir = None
@@ -124,6 +233,8 @@ class Web(Base):
         u = urlparse(self.path)
         if u.path == '/api/visits':
             return self.visits(parse_qs(u.query))
+        if u.path == '/api/behavior':
+            return self.behavior(parse_qs(u.query))
         if u.path == '/api/en/users':
             return self.en_admin('GET', '/users')
         if u.path in ('/', '/index.html'):
@@ -173,14 +284,26 @@ class Web(Base):
         self.end_headers()
         self.wfile.write(body)
 
-    def visits(self, q):
+    def date_range(self, q):
         g = lambda k: (q.get(k) or [''])[0]
         today = datetime.datetime.now(VN).date()
         f, t = g('from'), g('to')
         f = f if DATE_RE.match(f) else (today - datetime.timedelta(days=6)).isoformat()
         t = t if DATE_RE.match(t) else today.isoformat()
+        return f, t, day_start(f), day_start(t) + 86400
+
+    def behavior(self, q):
         try:
-            lo, hi = day_start(f), day_start(t) + 86400
+            f, t, lo, hi = self.date_range(q)
+        except ValueError:
+            return self.send_json(HTTPStatus.BAD_REQUEST, {'error': 'ngày không hợp lệ'})
+        data = behavior('en', lo, hi, (q.get('user') or [''])[0])
+        self.send_json(HTTPStatus.OK, dict(data, **{'from': f, 'to': t}))
+
+    def visits(self, q):
+        g = lambda k: (q.get(k) or [''])[0]
+        try:
+            f, t, lo, hi = self.date_range(q)
         except ValueError:
             return self.send_json(HTTPStatus.BAD_REQUEST, {'error': 'ngày không hợp lệ'})
         sql, args = 'SELECT id,site,user,kind,start,last,hits,ip,ua FROM visits WHERE start>=? AND start<?', [lo, hi]
