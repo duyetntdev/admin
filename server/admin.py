@@ -20,6 +20,8 @@ API đọc:
 Quản lý hồ sơ en.duyetnt.com (chuyển tiếp tới cổng quản trị nội bộ của en-learn, mặc định 127.0.0.1:8091):
   GET  /api/en/users                       → {users: [{name, hasPin, locked, levels, updated}]}
   POST /api/en/reset-pin {name}            → {ok, name}   (bắt buộc header X-Admin: 1 để chặn CSRF)
+  GET  /api/en/packs                       → {packs: [{id, title, ..., enabled, kids, lessons}]}  gói nội dung mới
+  POST /api/en/packs/toggle {id, on}       → {ok, id, enabled}   (bắt buộc header X-Admin: 1)
 
 Chạy thử trên máy:
   python3 server/admin.py --db /tmp/admin.db --static web
@@ -237,17 +239,31 @@ class Web(Base):
             return self.behavior(parse_qs(u.query))
         if u.path == '/api/en/users':
             return self.en_admin('GET', '/users')
+        if u.path == '/api/en/packs':
+            return self.en_admin('GET', '/packs')
         if u.path in ('/', '/index.html'):
             return self.file('index.html', 'text/html; charset=utf-8')
         self.send_json(HTTPStatus.NOT_FOUND, {'error': 'not found'})
 
     def do_POST(self):
-        if urlparse(self.path).path != '/api/en/reset-pin':
+        path = urlparse(self.path).path
+        if path not in ('/api/en/reset-pin', '/api/en/packs/toggle'):
             return self.send_json(HTTPStatus.NOT_FOUND, {'error': 'not found'})
         # Basic auth được trình duyệt tự gửi kèm, nên form của trang khác cũng POST được tới đây.
         # Header tự đặt buộc trình duyệt hỏi CORS trước (mà ta không cho) → chỉ trang này gọi được.
         if self.headers.get('X-Admin') != '1':
             return self.send_json(HTTPStatus.FORBIDDEN, {'error': 'forbidden'})
+        if path == '/api/en/packs/toggle':
+            try:
+                n = int(self.headers.get('Content-Length') or 0)
+                if n > 4096:
+                    raise ValueError
+                d = json.loads(self.rfile.read(n) or b'{}')
+                if not isinstance(d.get('id'), str) or not re.match(r'^[a-z0-9-]{1,30}$', d['id']) or not isinstance(d.get('on'), bool):
+                    raise ValueError
+            except (ValueError, TypeError, AttributeError):
+                return self.send_json(HTTPStatus.BAD_REQUEST, {'error': 'Dữ liệu không hợp lệ'})
+            return self.en_admin('POST', '/packs/toggle', {'id': d['id'], 'on': d['on']})
         try:
             n = int(self.headers.get('Content-Length') or 0)
             if n > 4096:

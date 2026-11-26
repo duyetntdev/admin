@@ -101,6 +101,16 @@ button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var
 .modal button{font:inherit;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer}
 .modal button.danger{background:var(--nihongo);border-color:var(--nihongo);color:#fff}
 .tab[hidden]{display:none}
+.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pk{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pk.off{opacity:.6}
+.pk .ph{display:flex;gap:10px;align-items:center}
+.pk .ph .ic{font-size:30px;line-height:1}
+.pk .ph b{display:block;font-size:15px}
+.pk .ls{display:flex;flex-wrap:wrap;gap:6px}
+.pk .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.sw{font:inherit;font-size:12.5px;cursor:pointer;border-radius:999px;padding:4px 12px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.sw.on{background:var(--good-soft);color:var(--good);border-color:var(--good)}
 @media (max-width:600px){ .card .v{font-size:22px} }
 </style>
 </head>
@@ -111,6 +121,7 @@ button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var
     <a href="#overview" data-tab="overview">Tổng quan</a>
     <a href="#behavior" data-tab="behavior">Hành vi học sinh · en</a>
     <a href="#visits" data-tab="visits">Lượt truy cập</a>
+    <a href="#packs" data-tab="packs">Gói nội dung · en</a>
     <a href="#pins" data-tab="pins">Hồ sơ &amp; mã PIN · en</a>
   </nav>
 </div></header>
@@ -224,6 +235,18 @@ button.reset:disabled{opacity:.5;cursor:default;background:transparent;color:var
     </section>
   </div>
 
+  <!-- ================= GÓI NỘI DUNG ================= -->
+  <div class="tab" id="tab-packs" hidden>
+    <section>
+      <h2>Gói nội dung mới · en.duyetnt.com <small id="packNote"></small></h2>
+      <p class="sub">Bé qua bài kiểm tra Level 1 của tất cả các bài đang có thì được tải gói tiếp theo, lần lượt từng gói.
+        Tắt một gói thì bé không thấy gói đó nữa (tiến độ đã học vẫn giữ). Gói mới được thêm vào thư mục <code>en-learn/packs/</code> rồi deploy.</p>
+      <div class="ok" id="packok"></div>
+      <div class="err" id="packerr"></div>
+      <div class="packs" id="packs"><p class="empty">Đang tải…</p></div>
+    </section>
+  </div>
+
   <!-- ================= HỒ SƠ & PIN ================= -->
   <div class="tab" id="tab-pins" hidden>
     <section>
@@ -254,6 +277,8 @@ const AREA = {'lesson.vocab':'Từ vựng','lesson.dialog':'Hội thoại','less
 const ACT = {practice:'Luyện tập', test:'Bài kiểm tra', castle:'Giải cứu công chúa', island:'Đảo kho báu', chest:'Mở rương kho báu'};
 const LESSONS = ['Animals','Colors','Numbers','Family','Food','School','My Body','Toys','Clothes','Weather','Feelings','Actions'];
 const ISLANDS = {kind:'Tốt Bụng', honest:'Trung Thực', brave:'Dũng Cảm', polite:'Lễ Phép', grateful:'Biết Ơn', responsible:'Trách Nhiệm', persevere:'Kiên Trì'};
+let PACK_LESSONS = {};      // key → tên bài trong gói nội dung (lấy từ /api/en/packs)
+const lessonName = k => k < 100 ? `Lesson ${k + 1} · ${LESSONS[k] || '?'}` : `${PACK_LESSONS[k] || 'Bài #' + k} · gói`;
 const catOf = a => a.startsWith('lesson.') ? 'learn' : ['castle','treasure','island','chest'].includes(a) ? 'game' : 'other';
 const CAT = {learn:'Học', game:'Trò chơi', other:'Khác'};
 
@@ -351,13 +376,14 @@ document.addEventListener('change', e => { const s = e.target.closest('[data-pgs
   const st = PG[s.dataset.pgsize]; st.size = +s.value; st.page = 1; drawPage(s.dataset.pgsize); });
 
 /* ---------- tab ---------- */
-const TABS = ['overview', 'behavior', 'visits', 'pins'];
+const TABS = ['overview', 'behavior', 'visits', 'packs', 'pins'];
 let tab = 'overview';
 function showTab(){
   tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
   TABS.forEach(t => { $('tab-' + t).hidden = t !== tab; });
   document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
-  $('filters').style.display = tab === 'pins' ? 'none' : '';
+  $('filters').style.display = tab === 'pins' || tab === 'packs' ? 'none' : '';
+  if(tab === 'packs') loadPacks();
   $('site').style.display = tab === 'behavior' ? 'none' : '';
   if(tab === 'pins' && !enUsers) loadPins();
   load();
@@ -373,7 +399,7 @@ function setRange(days){
 function showErr(m){ $('err').textContent = m; $('err').style.display = m ? 'block' : 'none'; }
 
 async function load(){
-  if(tab === 'pins') return;
+  if(tab === 'pins' || tab === 'packs') return;
   const q = new URLSearchParams({from:$('from').value, to:$('to').value, user:$('user').value.trim()});
   if(tab !== 'behavior') q.set('site', $('site').value);
   try{
@@ -472,8 +498,8 @@ function renderBehavior(d){
 
   const lmax = Math.max(1, ...d.lessons.map(l => l.sec));
   const ls = LESSONS.map((t, i) => d.lessons.find(l => l.lesson === i) || {lesson:i, sec:0, users:0, tests:0, passed:0, practices:0})
-    .concat(d.lessons.filter(l => l.lesson >= LESSONS.length)).sort((a, b) => b.sec - a.sec);
-  $('lessons').innerHTML = ls.map(l => `<tr><td class="u">Bài ${l.lesson + 1} · ${esc(LESSONS[l.lesson] || '?')}</td>
+    .concat(d.lessons.filter(l => l.lesson >= LESSONS.length)).sort((a, b) => b.sec - a.sec || a.lesson - b.lesson);
+  $('lessons').innerHTML = ls.map(l => `<tr><td class="u">${esc(lessonName(l.lesson))}</td>
       <td><span class="meter"><span><i style="width:${l.sec / lmax * 100}%"></i></span>${durShort(l.sec)}</span></td>
       <td class="r">${l.users || '—'}</td><td class="r">${l.practices || '—'}</td><td class="r">${l.tests || '—'}</td>
       <td class="r">${l.tests ? `${pct(l.passed, l.tests)}%` : '—'}</td></tr>`).join('');
@@ -505,7 +531,7 @@ function insights(d, areas, learn, game){
   const drop = d.acts.filter(a => a.starts >= 3 && a.act !== 'chest').map(a => Object.assign({}, a, {p:pct(a.dones, a.starts)})).sort((a, b) => a.p - b.p)[0];
   if(drop && drop.p < 70) out.push(['🚪', `<b>${esc(ACT[drop.act] || drop.act)}</b> bị bỏ dở nhiều nhất: chỉ ${drop.p}% số lần bắt đầu được làm xong. Có thể rút ngắn hoặc giảm độ khó.`]);
   const tests = d.lessons.filter(l => l.tests >= 3).map(l => Object.assign({}, l, {p:pct(l.passed, l.tests)})).sort((a, b) => a.p - b.p)[0];
-  if(tests && tests.p < 60) out.push(['📉', `Bài kiểm tra <b>Bài ${tests.lesson + 1} · ${esc(LESSONS[tests.lesson] || '')}</b> có tỉ lệ qua thấp nhất (${tests.p}%). Có thể cần thêm phần luyện tập cho bài này.`]);
+  if(tests && tests.p < 60) out.push(['📉', `Bài kiểm tra <b>${esc(lessonName(tests.lesson))}</b> có tỉ lệ qua thấp nhất (${tests.p}%). Có thể cần thêm phần luyện tập cho bài này.`]);
   const peak = [...d.hours].sort((a, b) => b.sec - a.sec)[0];
   if(peak) out.push(['🕘', `Bé học nhiều nhất vào khoảng <b>${peak.h}:00–${peak.h}:59</b>. Đây là giờ hợp lý để gửi nhắc nhở hoặc ra nội dung mới.`]);
   return out;
@@ -518,6 +544,41 @@ $('site').onchange = load;
 let deb; $('user').oninput = () => { clearTimeout(deb); deb = setTimeout(load, 300); };
 $('reload').onclick = () => { load(); if(tab === 'pins') loadPins(); };
 document.addEventListener('click', e => { const a = e.target.closest('[data-user]'); if(a){ $('user').value = a.dataset.user; load(); window.scrollTo({top:0, behavior:'smooth'}); } });
+
+/* ================= gói nội dung (en.duyetnt.com) ================= */
+let packs = [];
+async function loadPacks(){
+  try{
+    const r = await fetch('api/en/packs', {cache:'no-store'});
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || 'mã ' + r.status);
+    packs = d.packs || []; $('packerr').style.display = 'none';
+    packs.forEach(p => (p.lessons || []).forEach(L => { if(L.key != null) PACK_LESSONS[L.key] = L.title; }));
+    renderPacks();
+  }catch(e){ $('packerr').textContent = 'Không tải được danh sách gói: ' + e.message; $('packerr').style.display = 'block'; $('packs').innerHTML = ''; }
+}
+function renderPacks(){
+  $('packNote').textContent = packs.length ? `${packs.length} gói · ${packs.filter(p => p.enabled).length} đang bật` : '';
+  $('packs').innerHTML = packs.length ? packs.map((p, i) => `<div class="pk ${p.enabled ? '' : 'off'}">
+      <div class="ph"><span class="ic">${esc(p.icon || '🎁')}</span><div><b>${i + 1}. ${esc(p.title)}</b><span class="muted">${esc(p.desc || '')}</span></div></div>
+      <div class="ls">${(p.lessons || []).map(L => `<span class="chip">${esc(L.title)}</span>`).join('')}</div>
+      <div class="row"><span class="muted">Phát hành ${esc(p.date || '—')} · <b style="color:var(--text)">${p.kids}</b> bé đã tải</span>
+        <button class="sw ${p.enabled ? 'on' : ''}" data-pack="${esc(p.id)}" data-on="${p.enabled ? 0 : 1}">${p.enabled ? '● Đang bật' : '○ Đang tắt'}</button></div></div>`).join('')
+    : '<p class="empty">Chưa có gói nào. Thêm gói vào en-learn/packs/index.json rồi deploy.</p>';
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-pack]'); if(!b) return;
+  const id = b.dataset.pack, on = b.dataset.on === '1', p = packs.find(x => x.id === id);
+  if(!on && !await ask(`<b>Tắt gói "${esc(p.title)}"?</b><span class="muted">Bé sẽ không thấy gói này nữa, kể cả bé đã tải. Tiến độ đã học vẫn được giữ, bật lại là thấy như cũ.</span>`, 'Tắt gói')) return;
+  b.disabled = true; $('packok').style.display = $('packerr').style.display = 'none';
+  try{
+    const r = await fetch('api/en/packs/toggle', {method:'POST', headers:{'Content-Type':'application/json', 'X-Admin':'1'}, body:JSON.stringify({id, on})});
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || 'mã ' + r.status);
+    $('packok').textContent = `✓ Đã ${on ? 'bật' : 'tắt'} gói "${p.title}".`; $('packok').style.display = 'block';
+    loadPacks();
+  }catch(err){ b.disabled = false; $('packerr').textContent = 'Không đổi được: ' + err.message; $('packerr').style.display = 'block'; }
+});
 
 /* ================= reset mã PIN (en.duyetnt.com) ================= */
 let enUsers = null;
@@ -542,10 +603,10 @@ function renderPins(){
       <td>${u.hasPin || u.locked ? `<button class="reset" data-reset="${esc(u.name)}">Reset PIN</button>` : ''}</td></tr>`,
     'pinusers', 5, enUsers.length ? 'Không có tên nào khớp' : 'Chưa có hồ sơ nào');
 }
-function ask(html){
+function ask(html, yes = 'Reset PIN'){
   return new Promise(res => {
     const m = document.createElement('div'); m.className = 'modal';
-    m.innerHTML = `<div class="box" role="dialog" aria-modal="true">${html}<div class="row"><button id="mno">Huỷ</button><button class="danger" id="myes">Reset PIN</button></div></div>`;
+    m.innerHTML = `<div class="box" role="dialog" aria-modal="true">${html}<div class="row"><button id="mno">Huỷ</button><button class="danger" id="myes">${yes}</button></div></div>`;
     document.body.appendChild(m);
     const done = v => { m.remove(); res(v); };
     m.querySelector('#mno').onclick = () => done(false); m.querySelector('#myes').onclick = () => done(true);
@@ -570,6 +631,9 @@ $('pinq').oninput = () => { if(PG.pins) PG.pins.page = 1; renderPins(); };
 $('pinreload').onclick = loadPins;
 
 setRange(6); showTab();
+if(tab !== 'packs') fetch('api/en/packs', {cache:'no-store'}).then(r => r.ok ? r.json() : null).then(d => {
+  if(!d) return; (d.packs || []).forEach(p => (p.lessons || []).forEach(L => { if(L.key != null) PACK_LESSONS[L.key] = L.title; }));
+  if(tab === 'behavior') load(); }).catch(() => {});
 setInterval(() => { if(!document.hidden && tab !== 'pins') load(); }, 60e3);
 </script>
 </body>
