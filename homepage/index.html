@@ -159,6 +159,24 @@ header p{margin:0;color:var(--ink-2);font-size:17px;max-width:60ch}
 .qcard .qp b{font-family:var(--kid);font-size:17px;display:block}
 .quest .go{background:linear-gradient(90deg,#1F8FBF,#4FC3E8);font-family:var(--kid);font-size:17px;border-radius:16px;box-shadow:0 4px 0 rgba(23,115,154,.35);
   margin-top:20px;text-decoration:none}
+/* Trò chơi khác + nội dung mới */
+.games{display:flex;flex-direction:column;gap:14px}
+.games>h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.01em}
+.games>p{margin:0;color:var(--ink-2);max-width:62ch}
+.gcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.gcards{grid-template-columns:1fr}}
+.gcard{border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0;color:var(--en-ink);text-decoration:none;
+  background:linear-gradient(150deg,var(--g1),var(--g2));transition:transform .2s ease,box-shadow .2s ease}
+.gcard:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.08)}
+.gcard .gi{font-size:44px;line-height:1}
+.gcard h3{margin:0;font-family:var(--kid);font-weight:800;font-size:24px;line-height:1.15}
+.gcard p{margin:0;color:var(--en-muted);font-size:15px}
+.gcard ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--en-muted)}
+.gcard li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:6px}
+.gcard li b{color:var(--en-ink)}
+.gcard .gtags{display:flex;flex-wrap:wrap;gap:6px}
+.gcard .gtags span{background:rgba(255,255,255,.75);border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700}
+.gcard .gmore{margin-top:auto;font-weight:800;color:var(--gc)}
 footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:var(--ink-2);font-size:14px;
   border-top:1px solid var(--line);padding-top:18px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -180,16 +198,16 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:v
         <span class="owl" aria-hidden="true">🦉</span>
         <h2><span class="w1">Bé</span><span class="w2">Vui</span><span class="w3">Học</span><span class="w4">Tiếng</span><span class="w5">Anh</span></h2>
       </div>
-      <p class="lead">Từ vựng có hình, hội thoại ngắn, ngữ pháp đơn giản và trò luyện tập. Bé làm đúng 12/15 câu kiểm tra là qua bài, qua Cấp 1 thì mở Cấp 2, rồi Cấp 3.</p>
+      <p class="lead">Từ vựng có hình, hội thoại ngắn, ngữ pháp đơn giản và trò luyện tập. Bé làm đúng 12/15 câu kiểm tra là qua bài, qua Level 1 thì lên Level 2, rồi Level 3. Học hết thì tải thêm nội dung mới.</p>
       <div class="topics" aria-label="Một số chủ đề">
         <span><i>🐶</i>Animals</span><span><i>🎨</i>Colors</span><span><i>🔢</i>Numbers</span>
         <span><i>👨‍👩‍👧</i>Family</span><span><i>🍎</i>Food</span><span><i>☀️</i>Weather</span>
       </div>
       <ul class="facts">
-        <li><b>12</b>chủ đề</li>
-        <li><b>3</b>cấp mỗi chủ đề</li>
-        <li><b>1001</b>file phát âm</li>
-        <li><b>🏆</b>bảng vinh danh</li>
+        <li><b>15</b>chủ đề</li>
+        <li><b>3</b>level mỗi chủ đề</li>
+        <li><b>3</b>trò chơi</li>
+        <li><b>1500+</b>câu có giọng đọc</li>
       </ul>
       <span class="go">Vào học tiếng Anh <span aria-hidden="true">→</span></span>
     </a>
@@ -249,6 +267,45 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:v
       <div class="qo" lang="en"><span>The cat did.</span><span class="ok">✓ I did. I'm sorry.</span><span>I don't know.</span></div>
       <div class="qw">💡 <b>I did. I'm sorry.</b> nghĩa là "Con làm ạ. Con xin lỗi.". Đổ lỗi cho mèo là nói dối. Nhận lỗi thì mẹ sẽ tin con hơn.</div>
       <div class="qp">Lời hứa của Đảo Trung Thực<b lang="en">I am honest. I tell the truth.</b>Con là người trung thực. Con luôn nói thật.</div>
+    </div>
+  </section>
+
+  <section class="games" aria-labelledby="games-h">
+    <h2 id="games-h">Thêm trò chơi và nội dung mới trên en.duyetnt.com</h2>
+    <p>Ngoài bài học và trò Đi tìm kho báu, bé còn có thêm hai trò chơi khác và các gói bài mới để học tiếp khi đã học hết.</p>
+    <div class="gcards">
+      <a class="gcard" href="https://en.duyetnt.com" style="--g1:#FFE3F1;--g2:#E5D8FF;--gc:#8A4FD6">
+        <span class="gi">🏰</span>
+        <h3>Giải cứu công chúa</h3>
+        <p>Bà phù thủy Gian Gian nhốt Công chúa Tí Hon trên tháp bằng 10 ổ khoá. Mỗi câu từ vựng đúng mở được một ổ.</p>
+        <ul>
+          <li><span>🧙‍♀️</span><div>Trả lời sai thì bà phù thủy bay tới, cười "hí hí hí" và <b>khoá lại một ổ</b>, nên bé càng cố gắng hơn.</div></li>
+          <li><span>🎁</span><div>Cứu được công chúa, <b>vua cha tặng quà</b>. Có 16 món quà để sưu tầm.</div></li>
+        </ul>
+        <span class="gmore">Giải cứu công chúa →</span>
+      </a>
+      <a class="gcard" href="https://en.duyetnt.com" style="--g1:#D8F5E5;--g2:#BFE6EE;--gc:#1F7A8C">
+        <span class="gi">🧭</span>
+        <h3>Nhà thám hiểm thiên tài</h3>
+        <p>Bé thám hiểm 6 vùng đất, học từ vựng và kiến thức khoa học bằng tiếng Anh, kèm câu đố tư duy.</p>
+        <div class="gtags"><span>🌴 Rừng rậm</span><span>🌊 Đại dương</span><span>🏜️ Sa mạc</span><span>❄️ Băng giá</span><span>🚀 Vũ trụ</span><span>🌋 Núi lửa</span></div>
+        <ul>
+          <li><span>🌟</span><div>Sau mỗi câu khoa học có <b>Điều thú vị</b>, như "Bạch tuộc có 3 quả tim".</div></li>
+          <li><span>🎓</span><div>Sưu tầm thẻ khám phá, huy hiệu, và nhận <b>Bằng Nhà thám hiểm thiên tài</b> mang tên bé.</div></li>
+        </ul>
+        <span class="gmore">Bắt đầu thám hiểm →</span>
+      </a>
+      <a class="gcard" href="https://en.duyetnt.com" style="--g1:#FFF1C9;--g2:#FFDDB5;--gc:#C0611F">
+        <span class="gi">🎒</span>
+        <h3>Gói nội dung mới</h3>
+        <p>Học hết các bài hiện có, bé bấm "Tải nội dung mới" để có thêm bài, cùng định dạng và có giọng đọc như bài cũ.</p>
+        <div class="gtags"><span>🚗 Transport</span><span>👩‍🏫 Jobs</span><span>🍓 Fruits</span></div>
+        <ul>
+          <li><span>📚</span><div>Gói 1 có <b>3 chủ đề × 3 level</b>: phương tiện và an toàn giao thông, nghề nghiệp và ước mơ, trái cây và đi chợ.</div></li>
+          <li><span>🆕</span><div>Gói mới sẽ được phát hành dần.</div></li>
+        </ul>
+        <span class="gmore">Xem bài học →</span>
+      </a>
     </div>
   </section>
 
