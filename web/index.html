@@ -273,13 +273,14 @@ const KIND = {open:'Mở trang', login:'Đăng nhập', register:'Đăng ký m�
 // Tên hiển thị cho dữ liệu hành vi en.duyetnt.com. Khi thêm bài / đảo / khu vực mới ở en-learn thì bổ sung ở đây.
 const AREA = {'lesson.vocab':'Từ vựng','lesson.dialog':'Hội thoại','lesson.grammar':'Ngữ pháp','lesson.practice':'Luyện tập',
   'lesson.test':'Bài kiểm tra','castle':'Giải cứu công chúa','treasure':'Kho báu · bản đồ','island':'Kho báu · trên đảo',
-  'chest':'Kho báu · mở rương','home':'Trang chủ','fame':'Bảng vinh danh'};
-const ACT = {practice:'Luyện tập', test:'Bài kiểm tra', castle:'Giải cứu công chúa', island:'Đảo kho báu', chest:'Mở rương kho báu'};
+  'chest':'Kho báu · mở rương','home':'Trang chủ','fame':'Bảng vinh danh',
+  'explore':'Thám hiểm · bản đồ','expedition':'Thám hiểm · chuyến đi','diploma':'Thám hiểm · bằng'};
+const ACT = {practice:'Luyện tập', test:'Bài kiểm tra', castle:'Giải cứu công chúa', island:'Đảo kho báu', chest:'Mở rương kho báu', expedition:'Chuyến thám hiểm'};
 const LESSONS = ['Animals','Colors','Numbers','Family','Food','School','My Body','Toys','Clothes','Weather','Feelings','Actions'];
 const ISLANDS = {kind:'Tốt Bụng', honest:'Trung Thực', brave:'Dũng Cảm', polite:'Lễ Phép', grateful:'Biết Ơn', responsible:'Trách Nhiệm', persevere:'Kiên Trì'};
 let PACK_LESSONS = {};      // key → tên bài trong gói nội dung (lấy từ /api/en/packs)
 const lessonName = k => k < 100 ? `Lesson ${k + 1} · ${LESSONS[k] || '?'}` : `${PACK_LESSONS[k] || 'Bài #' + k} · gói`;
-const catOf = a => a.startsWith('lesson.') ? 'learn' : ['castle','treasure','island','chest'].includes(a) ? 'game' : 'other';
+const catOf = a => a.startsWith('lesson.') ? 'learn' : ['castle','treasure','island','chest','explore','expedition','diploma'].includes(a) ? 'game' : 'other';
 const CAT = {learn:'Học', game:'Trò chơi', other:'Khác'};
 
 const fmtD = new Intl.DateTimeFormat('vi-VN', {timeZone:TZ, weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
@@ -489,7 +490,7 @@ function renderBehavior(d){
     $('insights').innerHTML = insights(d, areas, learn, game).map(([i, t]) => `<li><span>${i}</span><span>${t}</span></li>`).join('');
   }
 
-  const order = ['practice', 'test', 'castle', 'island'];
+  const order = ['practice', 'test', 'castle', 'island', 'expedition'];
   const acts = [...d.acts].filter(a => a.act !== 'chest').sort((a, b) => order.indexOf(a.act) - order.indexOf(b.act));
   $('acts').innerHTML = acts.length ? acts.map(a => `<tr><td class="u">${esc(ACT[a.act] || a.act)}</td><td class="r">${a.starts}</td><td class="r">${a.dones}</td>
       <td>${a.starts ? meter(pct(a.dones, a.starts), pct(a.dones, a.starts) < 50 ? 'var(--game)' : '') : '<span class="muted">—</span>'}</td><td class="r">${a.users}</td>

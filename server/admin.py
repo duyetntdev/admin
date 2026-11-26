@@ -120,7 +120,7 @@ def record_events(site, user, events, ip, ua):
 
 
 LEARN = "area LIKE 'lesson.%'"
-GAME = "area IN ('castle','treasure','island','chest')"
+GAME = "area IN ('castle','treasure','island','chest','explore','expedition','diploma')"
 
 
 def behavior(site, lo, hi, user):
